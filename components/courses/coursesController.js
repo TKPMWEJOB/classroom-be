@@ -2,14 +2,16 @@
 const Course = require('./coursesModel');
 
 exports.index = (req, res) => {
-    Course.getAll((err, data) => {
-        if (err)
+    Course.findAll({})
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
             res.status(500).send({
                 message:
-                    err.message || "Some error occurred while retrieving coursesModel."
+                    err.message || "Some error occurred while retrieving courses."
             });
-        else res.send(data);
-    });
+        });
 };
 
 exports.create = (req, res) => {
@@ -19,40 +21,45 @@ exports.create = (req, res) => {
         });
     }
 
-    const course = new Course({
+    const course = {
         name: req.body.name,
         instructor: req.body.instructor,
         description: req.body.description
-    });
+    };
+    console.log("course:", course);
 
-    Course.create(course, (err, data) => {
-        if (err)
+    Course.create(course)
+        .then(data => {
+            res.send(data);
+        }).catch(err => {
+            console.log(err);
             res.status(500).send({
                 message:
                     err.message || "Some error occurred while creating the Course."
             });
-        else {
-            res.send(data);
-        }
-    });
+        });
 };
 
 exports.delete = (req, res) => {
-    Course.remove(req.params.id, (err, data) => {
-        if (err) {
-            if (err.kind === "not_found") {
-                res.status(404).send({
-                    message: `Not found Course with id ${req.params.id}.`
+    Course.destroy({
+        where: { id: req.params.id }
+    })
+        .then(num => {
+            if (num == 1) {
+                res.send({
+                    message: "Course was deleted successfully!"
                 });
             } else {
-                res.status(500).send({
-                    message: "Could not delete Course with id " + req.params.id
+                res.send({
+                    message: `Not found Course with id ${req.params.id}.`
                 });
             }
-        } else {
-            res.send(data);
-        };
-    });
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: `Not found Course with id ${req.params.id}.`
+            });
+        });
 };
 
 
@@ -63,21 +70,39 @@ exports.update = (req, res) => {
         });
     }
 
-    Course.updateById(
-        req.params.id,
-        new Course(req.body),
-        (err, data) => {
-            if (err) {
-                if (err.kind === "not_found") {
-                    res.status(404).send({
-                        message: `Not found Customer with id ${req.params.id}.`
-                    });
-                } else {
-                    res.status(500).send({
-                        message: "Error updating Customer with id " + req.params.id
-                    });
-                }
-            } else res.send(data);
-        }
-    );
+    Course.update(req.body, {
+        where: { id: req.params.id }
+    })
+        .then(num => {
+            if (num == 1) {
+                this.findOne(req, res);
+            } else {
+                res.send({
+                    message: `Not found Course with id ${req.params.id}.`
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: "Error updating Course with id " + req.params.id
+            });
+        });
+};
+
+exports.findOne = (req, res) => {
+    Course.findByPk(req.params.id)
+        .then(data => {
+            if (data) {
+                res.send(data);
+            } else {
+                res.status(404).send({
+                    message: `Cannot find course with id ${req.params.id}.`
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: "Error retrieving course with id " + req.params.id
+            });
+        });
 };
