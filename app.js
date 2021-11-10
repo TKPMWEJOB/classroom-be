@@ -10,6 +10,9 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const coursesRouter = require('./components/courses/coursesRouter');
 
+const sequelize = require('./components/dal/db');
+sequelize.sync();
+
 const app = express();
 
 // view engine setup
