@@ -1,20 +1,21 @@
 "use strict";
 const Course = require('./coursesModel');
+const CoursesService = require('./coursesService');
 
-exports.index = (req, res) => {
-    Course.findAll({})
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while retrieving courses."
-            });
+exports.index = async (req, res) => {
+    try {
+        const data = await CoursesService.findAll();
+        res.send(data);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred while retrieving courses."
         });
+    }
 };
 
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     if (!req.body) {
         res.status(400).send({
             message: "Content can not be empty!"
@@ -28,81 +29,74 @@ exports.create = (req, res) => {
     };
     console.log("course:", course);
 
-    Course.create(course)
-        .then(data => {
-            res.send(data);
-        }).catch(err => {
-            console.log(err);
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while creating the Course."
-            });
+    try {
+        const data = await CoursesService.create(course);
+        res.send(data);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred while creating the course."
         });
+    };
 };
 
-exports.delete = (req, res) => {
-    Course.destroy({
-        where: { id: req.params.id }
-    })
-        .then(num => {
-            if (num == 1) {
-                res.send({
-                    message: "Course was deleted successfully!"
-                });
-            } else {
-                res.send({
-                    message: `Not found Course with id ${req.params.id}.`
-                });
-            }
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: `Not found Course with id ${req.params.id}.`
+exports.delete = async (req, res) => {
+    try {
+        const num = await CoursesService.delete(req.params.id)
+        if (num == 1) {
+            res.send({
+                message: "Course was deleted successfully!"
             });
+        } else {
+            res.status(404).send({
+                message: 'Course not found'
+            });
+        }
+    } catch (err) {
+        res.status(500).send({
+            message: err.message || "Some error occurred while deleting the course."
         });
+    }
 };
 
 
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
     if (!req.body) {
         res.status(400).send({
             message: "Content can not be empty!"
         });
     }
 
-    Course.update(req.body, {
-        where: { id: req.params.id }
-    })
-        .then(num => {
-            if (num == 1) {
-                this.findOne(req, res);
-            } else {
-                res.send({
-                    message: `Not found Course with id ${req.params.id}.`
-                });
-            }
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: "Error updating Course with id " + req.params.id
+    try {
+        const num = await CoursesService.update(req.body, req.params.id);
+        if (num == 1) {
+            this.findOne(req, res);
+        } else {
+            res.status(404).send({
+                message: 'Course not found'
             });
+        }
+    } catch (err) {
+        res.status(500).send({
+            message: err.message || "Some error occurred while deleting the course."
         });
+    }
 };
 
-exports.findOne = (req, res) => {
-    Course.findByPk(req.params.id)
-        .then(data => {
-            if (data) {
-                res.send(data);
-            } else {
-                res.status(404).send({
-                    message: `Cannot find course with id ${req.params.id}.`
-                });
-            }
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: "Error retrieving course with id " + req.params.id
+exports.findOne = async (req, res) => {
+    try {
+        const data = await CoursesService.findOne(req.params.id);
+        if (data) {
+            res.send(data);
+        } else {
+            res.status(404).send({
+                message: 'Course not found'
             });
+        }
+    } catch (err) {
+        res.status(500).send({
+            message: err.message || "Some error occurred while finding the course."
         });
+    }
 };
