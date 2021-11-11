@@ -1,5 +1,4 @@
 "use strict";
-const Course = require('./coursesModel');
 const CoursesService = require('./coursesService');
 
 exports.index = async (req, res) => {
@@ -79,7 +78,7 @@ exports.update = async (req, res) => {
         }
     } catch (err) {
         res.status(500).send({
-            message: err.message || "Some error occurred while deleting the course."
+            message: err.message || "Some error occurred while updating the course."
         });
     }
 };
