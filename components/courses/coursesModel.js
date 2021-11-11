@@ -11,8 +11,9 @@ const Course = sequelize.define('Courses', {
         type: Sequelize.STRING(50),
         allowNull: false
     },
-    instructor: Sequelize.STRING(50),
-    description: Sequelize.TEXT
+    section: Sequelize.STRING(50),
+    subject: Sequelize.STRING(50),
+    room: Sequelize.STRING(50)
 })
 
 module.exports = Course;

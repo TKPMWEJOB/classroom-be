@@ -23,8 +23,9 @@ exports.create = async (req, res) => {
 
     const course = {
         name: req.body.name,
-        instructor: req.body.instructor,
-        description: req.body.description
+        section: req.body.section,
+        subject: req.body.subject,
+        room: req.body.room
     };
     console.log("course:", course);
 
