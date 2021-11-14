@@ -20,3 +20,7 @@ exports.update = (data, id) => {
 exports.findOne = (id) => {
     return User.findByPk(id);
 }
+
+exports.findOneByEmail = (email) => {
+    return User.findOne({where: {email: email}});
+}
