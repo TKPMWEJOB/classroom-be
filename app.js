@@ -10,6 +10,7 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const coursesRouter = require('./components/courses/coursesRouter');
 const authRouter = require('./components/auth/authRouter');
+const auth = require('./components/auth/passport/auth');
 
 const sequelize = require('./components/dal/db');
 sequelize.sync();
@@ -26,6 +27,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+auth(app);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
