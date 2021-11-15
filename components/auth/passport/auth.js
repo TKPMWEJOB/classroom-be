@@ -35,7 +35,7 @@ module.exports = (app) => {
     }, 
     async (email, password, done) => {
         let account = await UsersService.findOneByEmail(email);
-        console.log(account);
+        //console.log(account);
         //Account doesn't exist
         if (account === null) 
         {
@@ -56,18 +56,13 @@ module.exports = (app) => {
     );
 
     passport.use(new JWTStrategy({
-        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+        jwtFromRequest: ExtractJWT.fromHeader('authorization'),
         secretOrKey   : process.env.JWT_SECRET_KEY
     },
-        function (jwtPayload, cb) {
+        function (jwtPayload, done) {
             //find the user in db if needed
-            return UsersService.findById(jwtPayload.id)
-                .then(user => {
-                    return cb(null, user);
-                })
-                .catch(err => {
-                    return cb(err);
-                });
+            console.log(jwtPayload);
+            done(null, true);
         }
     ));
 };

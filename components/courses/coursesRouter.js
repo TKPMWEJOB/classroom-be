@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 const coursesController = require('./coursesController');
 
-router.get('/', coursesController.index);
+router.get('/', passport.authenticate('jwt', { session: false }), coursesController.index);
 
 router.post('/', coursesController.create);
 
