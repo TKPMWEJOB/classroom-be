@@ -4,44 +4,45 @@ const passport = require('passport');
 
 const UsersService = require('../users/usersService');
 
-exports.signin = async (req, res) => {
-    const user = req.user;
-    const body = {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-    }
-    const token = jwt.sign({user: body}, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
-
-    res.json({body, token});
-    /*
+exports.signin = async (req, res, next) => {
     await passport.authenticate('local', {session: false}, (err, user, info) => {
         console.log(err);
-        if (err || !user) {
-            return res.status(400).json({
-                message: info ? info.message : 'Login failed',
-                user   : user
-            });
+        console.log(user);
+        console.log(info);
+        if (err) {
+            res.status(500).send(JSON.stringify({
+               msg: "Internal Server Error"
+           }));
+       }
+       
+       if (!user) {
+            res.status(401).send(JSON.stringify({
+                msg: info.message
+            }));
         }
 
-        req.login(user, {session: false}, (err) => {
-            if (err) {
-                res.send(err);
+        if (user) {
+            const body = {
+                id: user.id,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
             }
+            const jwtToken = jwt.sign({user: body}, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
 
-            const token = jwt.sign(user, process.env.JWT_SECRET_KEY);
-
-            return res.json({user, token});
-        });
-    })
-    */
+            //res.json({body, token});
+            res.status(200).send(JSON.stringify({
+                body,
+                jwtToken,
+                msg: "Successfully logged in"
+            }));
+        }
+    })(req, res, next);
 };
-
 exports.signup = async (req, res) => {
-    if (!req.body) {
+    if (!req.body || !req.body.email || !req.body.password || !req.body.firstName || !req.body.lastName) {
         res.status(400).send({
-            message: "Content can not be empty!"
+            msg: "Content can not be empty!"
         });
     }
 
@@ -49,7 +50,8 @@ exports.signup = async (req, res) => {
         email: req.body.email,
         password: req.body.password,
         firstName: req.body.firstName,
-        lastName: req.body.lastName
+        lastName: req.body.lastName,
+        msg: "Create user successfuly!"
     };
 
     console.log("user:", user);
@@ -59,24 +61,16 @@ exports.signup = async (req, res) => {
         //console.log(duplicateUser);
         if (duplicateUser !== null) {
             res.status(409).send({
-                message: "This email is already exist!"
+                msg: "This email is already exist!"
             });
+        } else {
+            const data = await UsersService.create(user);
+            res.send(data);
         }
     } catch (err) {
         console.log(err);
         res.status(500).send({
-            message:
-                err.message || "Some error occurred while creating account."
-        });
-    }
-    
-    try {
-        const data = await UsersService.create(user);
-        res.send(data);
-    } catch (err) {
-        console.log(err);
-        res.status(500).send({
-            message:
+            msg:
                 err.message || "Some error occurred while creating account."
         });
     };

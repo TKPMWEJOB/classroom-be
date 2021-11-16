@@ -44,13 +44,14 @@ module.exports = (app) => {
 
         //Check password
         //if (!bcrypt.compareSync(password, account.password))
-        if (password === account.passport)
+        if (password.localeCompare(account.password) !== 0)
         {
+            //console.log("What? " + password);
           //Incorrect
          return done(null, false, {message: "Incorrect password!"});
         }
         //Correct
-
+        
         return done(null, account);
       })
     );
