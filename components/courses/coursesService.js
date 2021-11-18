@@ -1,12 +1,27 @@
 "use strict";
-const Course = require('./coursesModel');
+const Course = require('./coursesModel').Course;
+const Teacher = require('./coursesModel').Teacher;
+const User = require('../users/usersModel');
+const sequelize = require('../dal/db');
 
 exports.findAll = () => {
-    return Course.findAll({});
+    return Course.findAll({
+        include: [{ model: User, attributes: ['firstName', 'lastName'] }],
+        attributes: ['id', 'name', 'room', 'section']
+    });
 }
 
 exports.create = (newCourse) => {
-    return Course.create(newCourse);
+    return sequelize.transaction(async (t) => {
+        const course = await Course.create(newCourse, { transaction: t });
+        await Teacher.create({
+            courseId: course.id,
+            teacherId: course.ownerId,
+            confirmed: true
+        }, { transaction: t });
+        return course;
+    });
+
 }
 
 exports.delete = (id) => {
@@ -18,5 +33,9 @@ exports.update = (data, id) => {
 }
 
 exports.findOne = (id) => {
-    return Course.findByPk(id);
+    return Course.findOne({
+        where: { id: id },
+        include: [{ model: User, attributes: ['firstName', 'lastName'] }],
+        attributes: ['id', 'name', 'room', 'section']
+    })
 }

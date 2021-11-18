@@ -1,5 +1,6 @@
 "use strict";
 const CoursesService = require('./coursesService');
+const jwtDecode = require('jwt-decode');
 
 exports.index = async (req, res) => {
     try {
@@ -15,6 +16,9 @@ exports.index = async (req, res) => {
 };
 
 exports.create = async (req, res) => {
+    console.log(req.headers.authorization);
+    const token = req.headers.authorization;
+    const parsedToken = jwtDecode(token);
     if (!req.body) {
         res.status(400).send({
             message: "Content can not be empty!"
@@ -23,11 +27,11 @@ exports.create = async (req, res) => {
 
     const course = {
         name: req.body.name,
+	    ownerId: parsedToken.user.id,
         section: req.body.section,
         subject: req.body.subject,
         room: req.body.room
     };
-    console.log("course:", course);
 
     try {
         const data = await CoursesService.create(course);
@@ -88,6 +92,7 @@ exports.findOne = async (req, res) => {
     try {
         const data = await CoursesService.findOne(req.params.id);
         if (data) {
+            console.log(data);
             res.send(data);
         } else {
             res.status(404).send({

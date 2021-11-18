@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../dal/db');
 
-const Course = sequelize.define('Courses', {
+exports.Course = sequelize.define('Courses', {
     id: {
         type: Sequelize.INTEGER(11),
         primaryKey: true,
@@ -16,4 +16,14 @@ const Course = sequelize.define('Courses', {
     room: Sequelize.STRING(50)
 })
 
-module.exports = Course;
+exports.Teacher = sequelize.define('Teachers', {
+    confirmed: {
+        type: Sequelize.BOOLEAN
+    },
+})
+
+exports.Student = sequelize.define('Students', {
+    confirmed: {
+        type: Sequelize.BOOLEAN
+    },
+})

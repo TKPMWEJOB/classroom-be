@@ -13,6 +13,8 @@ const authRouter = require('./components/auth/authRouter');
 const auth = require('./components/auth/passport/auth');
 
 const sequelize = require('./components/dal/db');
+const { applyExtraSetup } = require('./components/dal/db_relationship');
+applyExtraSetup();
 sequelize.sync();
 
 const app = express();
@@ -36,12 +38,12 @@ app.use('/courses', coursesRouter);
 app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
