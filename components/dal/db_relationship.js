@@ -1,5 +1,5 @@
-const User = require('../users/usersModel').User;
-const UserInfo = require('../users/usersModel').UserInfo;
+const User = require('../users/usersModel');
+const UserInfo = require('../users/usersInfoModel');
 const Course = require('../courses/coursesModel').Course;
 const Teacher = require('../courses/coursesModel').Teacher;
 const Student = require('../courses/coursesModel').Student;
@@ -53,9 +53,10 @@ function applyExtraSetup() {
     });
 
     // user's information relationship
-    UserInfo.belongsTo(User, {
+    User.hasOne(UserInfo, {
+        targetKey: 'id',
         foreignKey: {
-            name: 'userId',
+            name: 'owner_info',
             allowNull: false
         }
     });

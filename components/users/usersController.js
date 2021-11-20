@@ -15,7 +15,6 @@ exports.index = async (req, res) => {
     }
 };
 
-
 exports.delete = async (req, res) => {
     try {
         const num = await usersService.delete(req.params.id)
@@ -93,11 +92,16 @@ exports.updateInfo = async (req, res) => {
 };
 
 exports.findOne = async (req, res) => {
+    const token = req.headers.authorization;
+    const parsedToken = jwtDecode(token);
+
     try {
-        const data1 = await usersService.findOne(req.params.id);
-        const data2 = await usersService.findOneInfo(req.params.id);
-        const data = data1.concat(data2);
-        if (data) {
+        console.log(parsedToken.user.id);
+        const data = await usersService.findOne(parsedToken.user.id);
+        console.log(data);
+        //const data2 = await usersService.findOneInfo(req.params.id);
+        //const data = data1.concat(data2);
+        if (data == 1) {
             console.log(data);
             res.send(data);
         } else {

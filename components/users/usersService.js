@@ -1,13 +1,19 @@
 "use strict";
-const User = require('./usersModel').User;
-const UserInfo = require('./usersModel').UserInfo;
+const User = require('./usersModel');
+const UserInfo = require('./usersInfoModel');
 
 exports.findAll = () => {
     return User.findAll({});
 }
 
 exports.create = (newUser) => {
-    return User.create(newUser);
+    return sequelize.transaction(async (t) => {
+        const userInfo = await UserInfo.create({ transaction: t });
+        const user = await User.create(newUser, { transaction: t });
+        const newData = { userId: user.id };
+        await UserInfo.update(newData, { where: { id: userInfo.id } });
+        return user;
+    });
 }
 
 exports.createInfo = (userId) => {
@@ -23,7 +29,7 @@ exports.deleteInfo = (id) => {
 }
 
 exports.update = (data, id) => {
-    return User.update(data, { where: { id } });
+    return User.update(data, { where: { id: id } });
 }
 
 exports.updateInfo = (data, id) => {
@@ -31,12 +37,28 @@ exports.updateInfo = (data, id) => {
 }
 
 exports.findOne = (id) => {
-    return User.findByPk(id);
+    return User.findOne({ 
+        where: { id: id },
+        include: [{ model: UserInfo, attributes: [
+            'phone', 
+            'address',
+            'studentID',
+            'birthday',
+            'school',
+            'gender'
+        ] }],
+        attributes: [
+            'id',
+            'firstName', 
+            'lastName',
+            'email'
+        ] 
+    });
 }
 
-exports.findOneInfo = (id) => {
+/*exports.findOneInfo = (id) => {
     return User.findOne({ where: { userId: id } });
-}
+}*/
 
 exports.findOneByEmail = (email) => {
     return User.findOne({where: {email: email}});

@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 auth(app);
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/user', usersRouter);
 app.use('/courses', coursesRouter);
 app.use('/auth', authRouter);
 
