@@ -24,8 +24,8 @@ exports.create = (newCourse) => {
 
 }
 
-exports.delete = (id) => {
-    return Course.destroy({ where: { id } });
+exports.delete = (courseId, userId) => {
+    return Course.destroy({ where: { id: courseId, ownerId: userId } });
 }
 
 exports.update = (data, id) => {

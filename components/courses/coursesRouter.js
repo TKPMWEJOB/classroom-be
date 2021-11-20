@@ -5,12 +5,12 @@ const coursesController = require('./coursesController');
 
 router.get('/', passport.authenticate('jwt', { session: false }), coursesController.index);
 
-router.post('/', coursesController.create);
+router.post('/', passport.authorize('jwt'), coursesController.create);
 
-router.delete('/:id', coursesController.delete);
+router.delete('/:id', passport.authorize('jwt'), coursesController.delete);
 
-router.put('/:id', coursesController.update);
+router.put('/:id', passport.authorize('jwt'), coursesController.update);
 
-router.get('/:id', coursesController.findOne);
+router.get('/:id', passport.authorize('jwt'), coursesController.findOne);
 
 module.exports = router;

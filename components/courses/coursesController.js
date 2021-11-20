@@ -46,8 +46,10 @@ exports.create = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
+    const token = req.headers.authorization;
+    const parsedToken = jwtDecode(token);
     try {
-        const num = await CoursesService.delete(req.params.id)
+        const num = await CoursesService.delete(req.params.id, parsedToken.user.id)
         if (num == 1) {
             res.send({
                 message: "Course was deleted successfully!"
