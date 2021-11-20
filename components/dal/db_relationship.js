@@ -1,4 +1,5 @@
-const User = require('../users/usersModel');
+const User = require('../users/usersModel').User;
+const UserInfo = require('../users/usersModel').UserInfo;
 const Course = require('../courses/coursesModel').Course;
 const Teacher = require('../courses/coursesModel').Teacher;
 const Student = require('../courses/coursesModel').Student;
@@ -51,6 +52,19 @@ function applyExtraSetup() {
         }
     });
 
+    // user's information relationship
+    User.HasOne(UserInfo, {
+        foreignKey: {
+            name: 'ownerInfoId',
+            allowNull: false
+        }
+    });
+    UserInfo.belongsTo(User, {
+        foreignKey: {
+            name: 'userId',
+            allowNull: false
+        }
+    });
 }
 
 module.exports = { applyExtraSetup };
