@@ -26,6 +26,11 @@ exports.User = sequelize.define('Users', {
 })
 
 exports.UserInfo = sequelize.define('UserInfo', {
+    id: {
+        type: Sequelize.INTEGER(11),
+        primaryKey: true,
+        autoIncrement: true
+    },
     phone: {
         type: Sequelize.STRING(15),
         allowNull: true

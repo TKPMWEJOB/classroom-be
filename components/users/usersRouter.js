@@ -3,7 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const usersController = require('./usersController');
 
-router.get('/', passport.authenticate('jwt', { session: false }), usersController.index);
+router.get('/', usersController.findOne);
 
 router.delete('/:id', usersController.delete);
 
@@ -11,6 +11,6 @@ router.put('/nameid/:id', usersController.updateNameId); // update user's name a
 
 router.put('/info/:id', usersController.updateInfo); // update personal information
 
-router.get('/:id', usersController.findOne);
+//router.get('/:id', usersController.findOne);
 
 module.exports = router;

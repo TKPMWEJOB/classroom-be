@@ -53,12 +53,6 @@ function applyExtraSetup() {
     });
 
     // user's information relationship
-    User.HasOne(UserInfo, {
-        foreignKey: {
-            name: 'ownerInfoId',
-            allowNull: false
-        }
-    });
     UserInfo.belongsTo(User, {
         foreignKey: {
             name: 'userId',
