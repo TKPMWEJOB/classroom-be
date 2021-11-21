@@ -1,4 +1,5 @@
 const User = require('../users/usersModel');
+const UserInfo = require('../users/usersInfoModel');
 const Course = require('../courses/coursesModel').Course;
 const Teacher = require('../courses/coursesModel').Teacher;
 const Student = require('../courses/coursesModel').Student;

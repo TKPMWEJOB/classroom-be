@@ -7,7 +7,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+const usersRouter = require('./components/users/usersRouter');
 const coursesRouter = require('./components/courses/coursesRouter');
 const authRouter = require('./components/auth/authRouter');
 const auth = require('./components/auth/passport/auth');
@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 auth(app);
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/user', usersRouter);
 app.use('/courses', coursesRouter);
 app.use('/auth', authRouter);
 

@@ -39,6 +39,7 @@ exports.signin = async (req, res, next) => {
         }
     })(req, res, next);
 };
+
 exports.signup = async (req, res) => {
     if (!req.body || !req.body.email || !req.body.password || !req.body.firstName || !req.body.lastName) {
         res.status(400).send({

@@ -1,27 +1,15 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../dal/db');
 
-const User = sequelize.define('Users', {
+/*const UserInfo = sequelize.define('UserInfo', {
     id: {
         type: Sequelize.INTEGER(11),
         primaryKey: true,
         autoIncrement: true
     },
-    email: {
-        type: Sequelize.STRING(50),
-        allowNull: false
-    },
-    password: {
-        type: Sequelize.STRING(50),
-        allowNull: false
-    },
-    firstName: {
-        type: Sequelize.STRING(50),
-        allowNull: false
-    },
-    lastName: {
-        type: Sequelize.STRING(50),
-        allowNull: false
+    userID: {
+        type: Sequelize.INTEGER(11),
+        allowNull: true
     },
     phone: {
         type: Sequelize.STRING(15),
@@ -49,4 +37,4 @@ const User = sequelize.define('Users', {
     }
 })
 
-module.exports = User;
+module.exports = UserInfo;*/
