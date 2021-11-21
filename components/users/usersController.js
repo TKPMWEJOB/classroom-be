@@ -38,11 +38,8 @@ exports.delete = async (req, res) => {
 exports.updateNameId = async (req, res) => {
     const user = {
         firstName: req.body.firstName,
-        lastName: req.body.lastName
-    };
-
-    const userInfo = {
-        studentId: req.body.studentId
+        lastName: req.body.lastName,
+        studentID: req.body.studentID
     };
 
     if (!req.body) {
@@ -52,10 +49,10 @@ exports.updateNameId = async (req, res) => {
     }
 
     try {
-        const num1 = await usersService.update(user, req.params.id);
-        const num2 = await usersService.updateInfo(userInfo, req.params.id);
-        if (num1 == 1 && num2 == 1) {
-            this.findOne(req, res);
+        const num = await usersService.update(user, req.body.id);
+
+        if (num) {
+            this.findNewData(req, res);
         } else {
             res.status(404).send({
                 message: 'User not found'
@@ -69,6 +66,14 @@ exports.updateNameId = async (req, res) => {
 };
 
 exports.updateInfo = async (req, res) => {
+    const user = {
+        birthday: req.body.date,
+        gender: req.body.gender,
+        address: req.body.address,
+        phone: req.body.phone,
+        school: req.body.school,
+    };
+
     if (!req.body) {
         res.status(400).send({
             message: "Content can not be empty!"
@@ -76,9 +81,9 @@ exports.updateInfo = async (req, res) => {
     }
 
     try {
-        const num = await usersService.updateInfo(req.body, req.params.id);
-        if (num == 1) {
-            this.findOne(req, res);
+        const num = await usersService.update(user, req.body.id);
+        if (num) {
+            this.findNewData(req, res);
         } else {
             res.status(404).send({
                 message: 'User not found'
@@ -96,13 +101,25 @@ exports.findOne = async (req, res) => {
     const parsedToken = jwtDecode(token);
 
     try {
-        console.log(parsedToken.user.id);
         const data = await usersService.findOne(parsedToken.user.id);
-        console.log(data);
-        //const data2 = await usersService.findOneInfo(req.params.id);
-        //const data = data1.concat(data2);
-        if (data == 1) {
-            console.log(data);
+        if (data) {
+            res.send(data);
+        } else {
+            res.status(404).send({
+                message: 'User not found'
+            });
+        }
+    } catch (err) {
+        res.status(500).send({
+            message: err.message || "Some error occurred while finding the user."
+        });
+    }
+};
+
+exports.findNewData = async (req, res) => {
+    try {
+        const data = await usersService.findOne(req.body.id);
+        if (data) {
             res.send(data);
         } else {
             res.status(404).send({

@@ -7,51 +7,51 @@ exports.findAll = () => {
 }
 
 exports.create = (newUser) => {
-    return sequelize.transaction(async (t) => {
-        const userInfo = await UserInfo.create({ transaction: t });
-        const user = await User.create(newUser, { transaction: t });
-        const newData = { userId: user.id };
-        await UserInfo.update(newData, { where: { id: userInfo.id } });
-        return user;
-    });
-}
+    /*return UserInfo.create({
+        User: newUser
+    }, {
+        include: [User]
+    });*/
 
-exports.createInfo = (userId) => {
-    return UserInfo.create({ userId });
+    return User.create(newUser);
+
+    /*return sequelize.transaction(async (t) => {
+        
+        const user = await User.create(
+            newUser, 
+            { include: [UserInfo] }
+        );
+        const newData = { userId: user.id };
+        await UserInfo.update(
+            newData, 
+            { where: { id: userInfo.id } }
+        );
+        return user;
+    });*/
 }
 
 exports.delete = (id) => {
     return User.destroy({ where: { id } });
 }
 
-exports.deleteInfo = (id) => {
-    return UserInfo.destroy({ where: { userId: id } });
-}
-
 exports.update = (data, id) => {
-    return User.update(data, { where: { id: id } });
-}
-
-exports.updateInfo = (data, id) => {
-    return UserInfo.update(data, { where: { userId: id } });
+    return User.update(data, { where: { id } });
 }
 
 exports.findOne = (id) => {
     return User.findOne({ 
         where: { id: id },
-        include: [{ model: UserInfo, attributes: [
+        attributes: [
+            'id',
+            'firstName', 
+            'lastName',
+            'email',
             'phone', 
             'address',
             'studentID',
             'birthday',
             'school',
             'gender'
-        ] }],
-        attributes: [
-            'id',
-            'firstName', 
-            'lastName',
-            'email'
         ] 
     });
 }

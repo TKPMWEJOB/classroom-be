@@ -66,7 +66,6 @@ exports.signup = async (req, res) => {
             });
         } else {
             const data = await UsersService.create(user);
-            await UsersService.updateInfo(data.id);
             res.send(data);
         }
     } catch (err) {

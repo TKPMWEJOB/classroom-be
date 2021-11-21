@@ -52,14 +52,6 @@ function applyExtraSetup() {
         }
     });
 
-    // user's information relationship
-    User.hasOne(UserInfo, {
-        targetKey: 'id',
-        foreignKey: {
-            name: 'owner_info',
-            allowNull: false
-        }
-    });
 }
 
 module.exports = { applyExtraSetup };
