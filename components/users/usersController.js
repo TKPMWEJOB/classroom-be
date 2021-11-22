@@ -49,20 +49,35 @@ exports.updateNameId = async (req, res) => {
     }
 
     try {
-        const num = await usersService.update(user, req.body.id);
-
-        if (num) {
-            this.findNewData(req, res);
-        } else {
-            res.status(404).send({
-                message: 'User not found'
+        const duplicateUser = await usersService.findOneByStudentId(user.studentID);
+        if (duplicateUser !== null && duplicateUser.dataValues.id !== req.body.id) {
+            res.status(409).send({
+                msg: "This Student ID is already exist!"
             });
+        } else {
+            try {
+                const num = await usersService.update(user, req.body.id);
+        
+                if (num) {
+                    this.findUpdatedNewData(req, res);
+                } else {
+                    res.status(404).send({
+                        msg: 'User not found'
+                    });
+                }
+            } catch (err) {
+                res.status(500).send({
+                    message: err.message || "Some error occurred while updating the user."
+                });
+            }
         }
     } catch (err) {
+        console.log(err);
         res.status(500).send({
-            message: err.message || "Some error occurred while updating the user."
+            msg:
+                err.message || "Some error occurred while creating account."
         });
-    }
+    };
 };
 
 exports.updateInfo = async (req, res) => {
@@ -83,10 +98,10 @@ exports.updateInfo = async (req, res) => {
     try {
         const num = await usersService.update(user, req.body.id);
         if (num) {
-            this.findNewData(req, res);
+            this.findUpdatedNewData(req, res);
         } else {
             res.status(404).send({
-                message: 'User not found'
+                msg: 'User not found'
             });
         }
     } catch (err) {
@@ -116,10 +131,12 @@ exports.findOne = async (req, res) => {
     }
 };
 
-exports.findNewData = async (req, res) => {
+exports.findUpdatedNewData = async (req, res) => {
     try {
         const data = await usersService.findOne(req.body.id);
         if (data) {
+            data.dataValues.msg = "Update Successfully!";
+            console.log(data);
             res.send(data);
         } else {
             res.status(404).send({

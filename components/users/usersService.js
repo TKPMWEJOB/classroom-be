@@ -56,9 +56,9 @@ exports.findOne = (id) => {
     });
 }
 
-/*exports.findOneInfo = (id) => {
-    return User.findOne({ where: { userId: id } });
-}*/
+exports.findOneByStudentId = (studentId) => {
+    return User.findOne({where: {studentID: studentId}});
+}
 
 exports.findOneByEmail = (email) => {
     return User.findOne({where: {email: email}});
