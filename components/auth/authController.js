@@ -28,17 +28,21 @@ exports.signin = async (req, res, next) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
             }
-            const jwtToken = jwt.sign({user: body}, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
-
+            const jwtToken = jwt.sign({user: body}, process.env.JWT_SECRET_KEY);
+            let maxAge = req.body.remember ? 7 * 24 * 60 * 60 * 1000 : 2 * 60 * 60 * 1000 ; //remeber me 7 days else 2h 
             //res.json({body, token});
-            res.status(200).send(JSON.stringify({
-                body,
-                jwtToken,
-                msg: "Successfully logged in"
+            res.status(200)
+                .cookie("token", jwtToken, {maxAge, httpOnly: true})
+                .send(JSON.stringify({
+                    body,
+                    jwtToken,
+                    msg: "Successfully logged in",
+                    maxAge,
             }));
         }
     })(req, res, next);
 };
+
 exports.signup = async (req, res) => {
     if (!req.body || !req.body.email || !req.body.password || !req.body.firstName || !req.body.lastName) {
         res.status(400).send({
@@ -74,4 +78,11 @@ exports.signup = async (req, res) => {
                 err.message || "Some error occurred while creating account."
         });
     };
+};
+
+exports.logout = async (req, res, next) => {
+    res.clearCookie("token");
+    res.status(200).send({
+        msg: "Logged out!"
+    });
 };
