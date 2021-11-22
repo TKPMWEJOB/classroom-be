@@ -24,7 +24,6 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
-    "referral-codes": "^1.0.2",
     "sequelize": "^6.9.0"
   },
   "devDependencies": {
