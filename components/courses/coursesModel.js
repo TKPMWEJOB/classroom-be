@@ -13,7 +13,8 @@ exports.Course = sequelize.define('Courses', {
     },
     section: Sequelize.STRING(50),
     subject: Sequelize.STRING(50),
-    room: Sequelize.STRING(50)
+    room: Sequelize.STRING(50),
+    invitationId: Sequelize.STRING(10)
 })
 
 exports.Teacher = sequelize.define('Teachers', {

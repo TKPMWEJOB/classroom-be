@@ -1,6 +1,7 @@
 "use strict";
 const CoursesService = require('./coursesService');
 const jwtDecode = require('jwt-decode');
+const referralCodes = require('referral-codes');
 
 exports.index = async (req, res) => {
     try {
@@ -16,7 +17,6 @@ exports.index = async (req, res) => {
 };
 
 exports.create = async (req, res) => {
-    console.log(req.headers.authorization);
     const token = req.headers.authorization;
     const parsedToken = jwtDecode(token);
     if (!req.body) {
@@ -25,13 +25,39 @@ exports.create = async (req, res) => {
         });
     }
 
+    let isGenerated = false;
+    let invitationCode = '';
+    while(!isGenerated) {
+        const code = referralCodes.generate({
+            length: 8
+        });
+
+        invitationCode = code[0];
+
+        try {
+            const data = await CoursesService.findOneByInvitationId(invitationCode);
+            if (data === null) {
+                isGenerated = true;
+            }
+        } catch (err) {
+            console.log(err);
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while creating the course."
+            });
+        };      
+    }
+
+
     const course = {
         name: req.body.name,
 	    ownerId: parsedToken.user.id,
         section: req.body.section,
         subject: req.body.subject,
-        room: req.body.room
+        room: req.body.room,
+        invitationId: invitationCode
     };
+
 
     try {
         const data = await CoursesService.create(course);

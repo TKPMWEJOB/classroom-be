@@ -36,6 +36,10 @@ exports.findOne = (id) => {
     return Course.findOne({
         where: { id: id },
         include: [{ model: User, attributes: ['firstName', 'lastName'] }],
-        attributes: ['id', 'name', 'room', 'section']
+        attributes: ['id', 'name', 'room', 'section', 'invitationId']
     })
+}
+
+exports.findOneByInvitationId = (id) => {
+    return Course.findOne({where: {invitationId: id}});
 }
