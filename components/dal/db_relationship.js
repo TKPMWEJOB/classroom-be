@@ -10,13 +10,15 @@ function applyExtraSetup() {
         foreignKey: {
             name: 'ownerId',
             allowNull: false
-        }
+        },
+        as: 'owner',
     });
     Course.belongsTo(User, {
         foreignKey: {
             name: 'ownerId',
             allowNull: false
         },
+        as: 'owner',
         targetKey: 'id'
     });
 

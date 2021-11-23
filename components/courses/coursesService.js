@@ -6,7 +6,11 @@ const sequelize = require('../dal/db');
 
 exports.findAll = () => {
     return Course.findAll({
-        include: [{ model: User, attributes: ['firstName', 'lastName'] }],
+        include: [{
+            model: User,
+            attributes: ['firstName', 'lastName'],
+            as: 'owner',
+        }],
         attributes: ['id', 'name', 'room', 'section']
     });
 }
@@ -28,18 +32,22 @@ exports.delete = (courseId, userId) => {
     return Course.destroy({ where: { id: courseId, ownerId: userId } });
 }
 
-exports.update = (data, id) => {
-    return Course.update(data, { where: { id } });
+exports.update = (data, courseId, userID) => {
+    return Course.update(data, { where: { id: courseId, ownerId: userID } });
 }
 
 exports.findOne = (id) => {
     return Course.findOne({
         where: { id: id },
-        include: [{ model: User, attributes: ['firstName', 'lastName'] }],
+        include: [{
+            model: User,
+            attributes: ['firstName', 'lastName'],
+            as: 'owner'
+        }],
         attributes: ['id', 'name', 'room', 'section', 'invitationId']
     })
 }
 
 exports.findOneByInvitationId = (id) => {
-    return Course.findOne({where: {invitationId: id}});
+    return Course.findOne({ where: { invitationId: id } });
 }

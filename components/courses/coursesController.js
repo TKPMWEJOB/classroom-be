@@ -128,6 +128,7 @@ exports.findOne = async (req, res) => {
             });
         }
     } catch (err) {
+        console.log(err);
         res.status(500).send({
             message: err.message || "Some error occurred while finding the course."
         });
