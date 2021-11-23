@@ -1,6 +1,8 @@
 "use strict";
 const usersService = require('./usersService');
+const coursesService = require('../courses/coursesService');
 const jwtDecode = require('jwt-decode');
+const { Course } = require('../courses/coursesModel');
 
 exports.index = async (req, res) => {
     try {
@@ -112,7 +114,7 @@ exports.updateInfo = async (req, res) => {
 };
 
 exports.findOne = async (req, res) => {
-    const token = req.cookies['token'];
+    const token = req.headers.authorization;
     const parsedToken = jwtDecode(token);
 
     try {
@@ -122,6 +124,55 @@ exports.findOne = async (req, res) => {
         } else {
             res.status(404).send({
                 message: 'User not found'
+            });
+        }
+    } catch (err) {
+        res.status(500).send({
+            message: err.message || "Some error occurred while finding the user."
+        });
+    }
+};
+
+exports.findUserInCourse = async (req, res) => {
+    const token = req.headers.authorization;
+    let userId = null;
+    if (token) {
+        const parsedToken = jwtDecode(token);
+        userId = parsedToken.user.id;
+    }
+    const invitationId = req.params.id;
+
+    try {
+        const course = await coursesService.findOne(invitationId);
+        if (course !== null) {
+            if (userId !== null) {
+                const student = await coursesService.findOneStudent(course.id, userId);
+                const teacher = await coursesService.findOneTeacher(course.id, userId);
+                const user = await usersService.findOne(userId);
+
+                
+                if (student === null && teacher === null && user !== null) {
+                    res.status(201).send(user);
+                } else if (user === null){
+                    res.status(203).send({
+                        message: 'User not found'
+                    });
+                } else {
+                    res.status(202).send({
+                        message: 'User has already joined!'
+                    });
+                }
+            }
+            else {
+                res.status(203).send({
+                    message: 'User not found'
+                });
+            }
+            
+        }
+        else {
+            res.status(500).send({
+                message: err.message || "Some error occurred while finding the course."
             });
         }
     } catch (err) {

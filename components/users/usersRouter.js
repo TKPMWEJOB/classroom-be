@@ -1,14 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 const usersController = require('./usersController');
 
-router.get('/', usersController.findOne);
+router.get('/', passport.authorize('jwt'), usersController.findOne);
 
-router.delete('/', usersController.delete);
+router.get('/find-user/:id', usersController.findUserInCourse);
 
-router.put('/nameid', usersController.updateNameId); // update user's name and student id
+router.delete('/', passport.authorize('jwt'), usersController.delete);
 
-router.put('/info', usersController.updateInfo); // update personal information
+router.put('/nameid', passport.authorize('jwt'), usersController.updateNameId); // update user's name and student id
+
+router.put('/info', passport.authorize('jwt'), usersController.updateInfo); // update personal information
 
 //router.get('/:id', usersController.findOne);
 
