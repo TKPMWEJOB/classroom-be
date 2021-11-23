@@ -10,7 +10,7 @@ const UsersService = require('../../users/usersService');
 module.exports = (app) => {
 
     app.use(passport.initialize());
-/*
+
     passport.serializeUser((user, done) => {
         done(null, user.id);
     });
@@ -27,7 +27,7 @@ module.exports = (app) => {
             done(null, account);
         }
     });
-*/
+    
     passport.use(
       new LocalStrategy({
         usernameField: 'email',
@@ -56,17 +56,8 @@ module.exports = (app) => {
       })
     );
 
-    let cookieExtractor = function(req) {
-        let token = null;
-        if (req && req.cookies)
-        {
-            token = req.cookies['token'];
-        }
-        return token;
-    };
-
     passport.use(new JWTStrategy({
-        jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
+        jwtFromRequest: ExtractJWT.fromHeader('authorization'),
         secretOrKey   : process.env.JWT_SECRET_KEY
     },
         function (jwtPayload, done) {
@@ -75,5 +66,4 @@ module.exports = (app) => {
             done(null, true);
         }
     ));
-
 };

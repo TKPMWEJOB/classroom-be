@@ -1,17 +1,19 @@
 "use strict";
 const Course = require('./coursesModel').Course;
 const Teacher = require('./coursesModel').Teacher;
+const Student = require('./coursesModel').Student;
 const User = require('../users/usersModel');
 const sequelize = require('../dal/db');
+const { Op } = require("sequelize");
 
 exports.findAll = () => {
     return Course.findAll({
         include: [{
             model: User,
-            attributes: ['firstName', 'lastName'],
+            attributes: ['firstName', 'lastName', 'email'],
             as: 'owner',
         }],
-        attributes: ['id', 'name', 'room', 'section']
+        attributes: ['id', 'name', 'room', 'section', 'invitationId']
     });
 }
 
@@ -38,10 +40,10 @@ exports.update = (data, courseId, userID) => {
 
 exports.findOne = (id) => {
     return Course.findOne({
-        where: { id: id },
+        where: {[Op.or]: [{id: id}, {invitationId: id}]},
         include: [{
             model: User,
-            attributes: ['firstName', 'lastName'],
+            attributes: ['firstName', 'lastName', 'email'],
             as: 'owner'
         }],
         attributes: ['id', 'name', 'room', 'section', 'invitationId']
@@ -51,3 +53,60 @@ exports.findOne = (id) => {
 exports.findOneByInvitationId = (id) => {
     return Course.findOne({ where: { invitationId: id } });
 }
+
+exports.createStudent = (courseId, studentId) => {
+    return Student.create({
+        courseId: courseId,
+        studentId: studentId,
+        confirmed: false
+    });
+}
+
+exports.findPendingStudent = (courseId, studentId) => {
+    return Student.findOne({ 
+        where: { 
+            courseId: courseId,
+            studentId: studentId
+        } 
+    });
+}
+
+exports.findOneStudent = (courseId, studentId) => {
+    return Student.findOne({ 
+        where: { 
+            courseId: courseId,
+            studentId: studentId,
+            confirmed: true
+        } 
+    });
+}
+
+exports.findOneTeacher = (courseId, teacherId) => {
+    return Teacher.findOne({ 
+        where: { 
+            courseId: courseId,
+            teacherId: teacherId,
+            confirmed: true
+        } 
+    });
+}
+
+exports.updateStudent = (courseId, studentId) => {
+    return Student.update({
+        confirmed: true 
+    }, { 
+        where: { 
+            courseId: courseId,
+            studentId: studentId
+        } 
+    });
+}
+
+exports.addStudent = (courseId, studentId) => {
+    return Student.create({
+        courseId: courseId,
+        studentId: studentId,
+        confirmed: true
+    });
+}
+
