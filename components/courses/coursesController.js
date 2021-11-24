@@ -4,6 +4,7 @@ const UsersService = require('../users/usersService');
 const jwtDecode = require('jwt-decode');
 const referralCodes = require('referral-codes');
 const nodemailer = require('nodemailer');
+const Permission = require('../auth/rolePermission');
 
 exports.index = async (req, res) => {
     try {
@@ -119,11 +120,23 @@ exports.update = async (req, res) => {
 };
 
 exports.findOne = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+
+    const role = await Permission.getRole(parsedToken.user.id, req.params.id)
+    console.log('Role:', role);
+
+    if (role === 'guest') {
+        res.status(404).send({
+            message: 'Course not found'
+        });
+    }
+
     try {
         const data = await CoursesService.findOne(req.params.id);
         if (data !== null) {
-            console.log(data);
-            res.send(data);
+            //console.log(data);
+            res.send({ data, role });
         } else {
             res.status(404).send({
                 message: 'Course not found'
@@ -231,7 +244,7 @@ exports.findAllPeople = async (req, res) => {
     try {
         const students = await CoursesService.findAllStudents(req.params.id);
         const teachers = await CoursesService.findAllTeachers(req.params.id);
-        res.send({students, teachers});
+        res.send({ students, teachers });
     } catch (err) {
         res.status(500).send({
             msg: err.message || "Some error occurred while adding student."

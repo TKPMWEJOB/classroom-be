@@ -13,7 +13,7 @@ exports.findAll = () => {
             attributes: ['firstName', 'lastName', 'email'],
             as: 'owner',
         }],
-        attributes: ['id', 'name', 'room', 'section', 'invitationId']
+        attributes: ['id', 'name', 'room', 'section', 'invitationId', 'ownerId']
     });
 }
 
@@ -46,7 +46,7 @@ exports.findOne = (id) => {
             attributes: ['firstName', 'lastName', 'email'],
             as: 'owner'
         }],
-        attributes: ['id', 'name', 'room', 'section', 'invitationId']
+        attributes: ['id', 'name', 'room', 'section', 'invitationId', 'ownerId']
     })
 }
 
@@ -118,9 +118,10 @@ exports.findAllStudents = (courseId) => {
         },
         include: [{
             model: User,
+            attributes: ['id', 'firstName', 'lastName', 'email'],
             as: 'students'
         }],
-
+        attributes: ['id']
     });
 }
 
@@ -132,7 +133,23 @@ exports.findAllTeachers = (courseId) => {
         },
         include: [{
             model: User,
+            attributes: ['id', 'firstName', 'lastName', 'email'],
             as: 'teachers'
         }],
+        attributes: ['id']
     });
+}
+
+exports.findOneWithTeacherId = (courseId, userId) => {
+    return Course.findOne({
+        where: {
+            id: courseId,
+        },
+        include: [{
+            model: User,
+            attributes: ['id', 'firstName', 'lastName', 'email'],
+            as: 'teachers'
+        }],
+        attributes: ['id', 'name', 'room', 'section', 'invitationId']
+    })
 }
