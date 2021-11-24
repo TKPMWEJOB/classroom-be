@@ -199,16 +199,49 @@ exports.findAllTeachers = (courseId) => {
     });
 }
 
-exports.findOneWithTeacherId = (courseId, userId) => {
-    return Course.findOne({
-        where: {
-            id: courseId,
-        },
+exports.findAllCoursesWithStudentId = (userId) => {
+    return Course.findAll({
         include: [{
             model: User,
-            attributes: ['id', 'firstName', 'lastName', 'email'],
+            where: {
+                id: userId
+            },
+            attributes: [],
+            as: 'students'
+        },
+        {
+            model: User,
+            attributes: ['id'],
             as: 'teachers'
-        }],
-        attributes: ['id', 'name', 'room', 'section', 'invitationId']
+        },
+        {
+            model: User,
+            attributes: ['id', 'firstName', 'lastName'],
+            as: 'owner'
+        }
+        ],
+        attributes: ['id', 'name', 'room', 'section', 'invitationId', 'ownerId'],
+        //as: 'student'
+    })
+}
+
+exports.findAllCoursesWithTeacherId = (userId) => {
+    return Course.findAll({
+        include: [{
+            model: User,
+            where: {
+                id: userId
+            },
+            attributes: [],
+            as: 'teachers'
+        },
+        {
+            model: User,
+            attributes: ['id', 'firstName', 'lastName'],
+            as: 'owner'
+        }
+        ],
+        attributes: ['id', 'name', 'room', 'section', 'invitationId', 'ownerId'],
+        //as: 'teachers'
     })
 }

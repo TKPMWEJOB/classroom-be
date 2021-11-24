@@ -7,8 +7,13 @@ const nodemailer = require('nodemailer');
 const Permission = require('../auth/rolePermission');
 
 exports.index = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+
     try {
-        const data = await CoursesService.findAll();
+        const teachingCourses = await CoursesService.findAllCoursesWithTeacherId(parsedToken.user.id);
+        const studyingCourses = await CoursesService.findAllCoursesWithStudentId(parsedToken.user.id);
+        const data = teachingCourses.concat(studyingCourses);
         res.send(data);
     } catch (err) {
         console.log(err);
