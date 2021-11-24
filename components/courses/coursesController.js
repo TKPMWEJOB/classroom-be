@@ -175,6 +175,7 @@ exports.inviteMember = async (req, res) => {
     });
 
     let isAcceptSendMail = false;
+    let isInviteTeacherError = false;
 
     try {
         console.log('access');
@@ -186,7 +187,6 @@ exports.inviteMember = async (req, res) => {
             const teacher = await CoursesService.findPendingTeacher(courseId, userId);
             console.log(student);
             console.log(teacher);
-            console.log('compare');
             if (student !== null || teacher !== null) {
                 if(student !== null) {
                     if (student.confirmed && role === 'student') {
@@ -220,6 +220,10 @@ exports.inviteMember = async (req, res) => {
             }
             
         }
+        else if (existingUser === null && role == 'teacher'){
+            isAcceptSendMail = false;
+            isInviteTeacherError = true;
+        }
         else {
             isAcceptSendMail = true;
         }
@@ -249,6 +253,11 @@ exports.inviteMember = async (req, res) => {
                 msg: "Some error occurred while sending invitation."
             });
         }
+    }
+    else if (isInviteTeacherError) {
+        res.status(500).send({
+            msg: `Cannot invite teacher outside system`
+        });
     }
     else {
         res.status(500).send({
