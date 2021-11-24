@@ -134,13 +134,14 @@ exports.findOne = async (req, res) => {
 };
 
 exports.findUserInCourse = async (req, res) => {
-    const token = req.headers.authorization;
+    const token = req.cookies.token;
     let userId = null;
     if (token) {
         const parsedToken = jwtDecode(token);
         userId = parsedToken.user.id;
     }
     const invitationId = req.params.id;
+
 
     try {
         const course = await coursesService.findOne(invitationId);
@@ -150,6 +151,9 @@ exports.findUserInCourse = async (req, res) => {
                 const teacher = await coursesService.findOneTeacher(course.id, userId);
                 const user = await usersService.findOne(userId);
 
+                console.log(student);
+                console.log(teacher);
+                console.log(user);
                 
                 if (student === null && teacher === null && user !== null) {
                     res.status(201).send(user);
