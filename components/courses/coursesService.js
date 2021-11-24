@@ -50,17 +50,9 @@ exports.findOne = (id) => {
     })
 }
 
-/*exports.findOneInv = (id) => {
-    return Course.findOne({
-        where: { invitationId: id },
-        include: [{ model: User, attributes: ['firstName', 'lastName'] }],
-        attributes: ['id', 'name', 'room', 'section', 'invitationId']
-    })
-}*/
-
-/*exports.findOneByInvitationId = (id) => {
-    return Course.findOne({where: {invitationId: id}});
-}*/
+exports.findOneByInvitationId = (id) => {
+    return Course.findOne({ where: { invitationId: id } });
+}
 
 exports.createStudent = (courseId, studentId) => {
     return Student.create({
@@ -118,6 +110,3 @@ exports.addStudent = (courseId, studentId) => {
     });
 }
 
-exports.findOneByInvitationId = (id) => {
-    return Course.findOne({ where: { invitationId: id } });
-}
