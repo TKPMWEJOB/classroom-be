@@ -227,3 +227,14 @@ exports.updateStudent = async (req, res) => {
     }
 }
 
+exports.findAllPeople = async (req, res) => {
+    try {
+        const students = await CoursesService.findAllStudents(req.params.id);
+        const teachers = await CoursesService.findAllTeachers(req.params.id);
+        res.send({students, teachers});
+    } catch (err) {
+        res.status(500).send({
+            msg: err.message || "Some error occurred while adding student."
+        });
+    }
+}
