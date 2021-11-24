@@ -7,7 +7,7 @@ router.get('/', passport.authenticate('jwt', { session: false }), coursesControl
 
 router.post('/', passport.authorize('jwt'), coursesController.create);
 
-router.put('/invite-student', passport.authorize('jwt'), coursesController.inviteStudent);
+router.put('/invite-member', passport.authorize('jwt'), coursesController.inviteMember);
 
 router.put('/student-accepted', passport.authorize('jwt'), coursesController.updateStudent);
 

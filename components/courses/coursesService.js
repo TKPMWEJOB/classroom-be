@@ -62,11 +62,28 @@ exports.createStudent = (courseId, studentId) => {
     });
 }
 
+exports.createTeacher = (courseId, teacherId) => {
+    return Teacher.create({
+        courseId: courseId,
+        teacherId: teacherId,
+        confirmed: false
+    });
+}
+
 exports.findPendingStudent = (courseId, studentId) => {
     return Student.findOne({ 
         where: { 
             courseId: courseId,
             studentId: studentId
+        } 
+    });
+}
+
+exports.findPendingTeacher = (courseId, teacherId) => {
+    return Teacher.findOne({ 
+        where: { 
+            courseId: courseId,
+            teacherId: teacherId
         } 
     });
 }
@@ -91,9 +108,20 @@ exports.findOneTeacher = (courseId, teacherId) => {
     });
 }
 
-exports.updateStudent = (courseId, studentId) => {
+exports.updateStudentJoin = (courseId, studentId) => {
     return Student.update({
         confirmed: true 
+    }, { 
+        where: { 
+            courseId: courseId,
+            studentId: studentId
+        } 
+    });
+}
+
+exports.updateStudentEject = (courseId, studentId) => {
+    return Student.update({
+        confirmed: false 
     }, { 
         where: { 
             courseId: courseId,
@@ -106,6 +134,37 @@ exports.addStudent = (courseId, studentId) => {
     return Student.create({
         courseId: courseId,
         studentId: studentId,
+        confirmed: true
+    });
+}
+
+
+exports.updateTeacherJoin = (courseId, teacherId) => {
+    return Teacher.update({
+        confirmed: true 
+    }, { 
+        where: { 
+            courseId: courseId,
+            teacherId: teacherId
+        } 
+    });
+}
+
+exports.updateTeacherEject = (courseId, teacherId) => {
+    return Teacher.update({
+        confirmed: false 
+    }, { 
+        where: { 
+            courseId: courseId,
+            teacherId: teacherId
+        } 
+    });
+}
+
+exports.addTeacher = (courseId, teacherId) => {
+    return Teacher.create({
+        courseId: courseId,
+        teacherId: teacherId,
         confirmed: true
     });
 }
