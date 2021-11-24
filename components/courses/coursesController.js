@@ -150,7 +150,8 @@ exports.findOne = async (req, res) => {
     }
 };
 
-exports.inviteStudent = async (req, res) => {
+exports.inviteMember = async (req, res) => {
+    const role = req.body.role;
     const invitationLink = req.body.invitationLink;
     const courseId = req.body.courseId;
     const emailReceiver = req.body.emailReceiver;
@@ -168,41 +169,87 @@ exports.inviteStudent = async (req, res) => {
         }
     });
 
+    let isAcceptSendMail = false;
+
     try {
+        console.log('access');
         const existingUser = await UsersService.findOneByEmail(emailReceiver);
-        console.log(existingUser);
         if (existingUser !== null) {
-            const studentId = existingUser.id;
-            await CoursesService.createStudent(courseId, studentId);
+            const userId = existingUser.id;
+            const student = await CoursesService.findPendingStudent(courseId, userId);
+            const teacher = await CoursesService.findPendingTeacher(courseId, userId);
+            console.log(student);
+            console.log(teacher);
+            console.log('compare');
+            if (student !== null || teacher !== null) {
+                if(student !== null) {
+                    if (student.confirmed && role === 'student') {
+                        isAcceptSendMail = false;
+                    }
+                    else {
+                        isAcceptSendMail = true;
+                    }
+                }
+                else if (teacher !== null) {
+                    if (teacher.confirmed && role === 'teacher') {
+                        isAcceptSendMail = false;
+                    }
+                    else {
+                        isAcceptSendMail = true;
+                    }
+                }
+                else {
+                    isAcceptSendMail = true;
+                }
+            }
+            else {
+                if (role === 'student') {
+                    await CoursesService.createStudent(courseId, userId);
+                    isAcceptSendMail = true;
+                }
+                else if (role === 'teacher') {
+                    await CoursesService.createTeacher(courseId, userId);
+                    isAcceptSendMail = true;
+                }
+            }
+            
         }
     } catch (err) {
         console.log(err);
     };
 
-    try {
-        let info = await transporter.sendMail({
-            from: `${sender} <${emailSender}>`,
-            to: emailReceiver,
-            subject: "New invitation to classroom",
-            text: 'You recieved message from ' + sender,
-            html: "Hello,<br> You have an invitation to " + sender + "'s classroom<br><br> Please Click on the link to accept your invitation.<br><a href=" + invitationLink + ">" + invitationLink + "</a>"
-        });
-
-        if (info !== null) {
-            res.send({ msg: 'Invitation sent!' });
-        } else {
-            res.status(404).send({
-                msg: 'Could not send invitation'
+    if (isAcceptSendMail) {
+        try {
+            let info = await transporter.sendMail({
+                from: `${sender} <${emailSender}>`,
+                to: emailReceiver,
+                subject: "New invitation to classroom",
+                text: 'You recieved message from ' + sender,
+                html: "Hello,<br> You have an invitation to " + sender + "'s classroom<br><br> Please Click on the link to accept your invitation.<br><a href=" + invitationLink + ">" + invitationLink + "</a>"
+            });
+    
+            if (info !== null) {
+                res.send({ msg: 'Invitation sent!' });
+            } else {
+                res.status(404).send({
+                    msg: 'Could not send invitation'
+                });
+            }
+        } catch (err) {
+            res.status(500).send({
+                msg: "Some error occurred while sending invitation."
             });
         }
-    } catch (err) {
+    }
+    else {
         res.status(500).send({
-            msg: err.message || "Some error occurred while sending invitation."
+            msg: `${role} has already in class`
         });
     }
+    
 };
 
-exports.updateStudent = async (req, res) => {
+exports.invitationHandle = async (req, res) => {
     if (!req.body) {
         res.status(400).send({
             msg: "Content can not be empty!"
@@ -212,15 +259,26 @@ exports.updateStudent = async (req, res) => {
     try {
         const course = await CoursesService.findOne(req.body.invitationId);
         const student = await CoursesService.findPendingStudent(course.id, req.body.userId);
+        const teacher = await CoursesService.findPendingTeacher(course.id, req.body.userId);
         let isSuccess = null;
 
-        console.log(student);
-        if (student !== null) {
-            console.log('update');
-            isSuccess = await CoursesService.updateStudent(course.id, student.studentId);
-        } else {
-            console.log('create');
-            isSuccess = await CoursesService.addStudent(course.id, req.body.userId);
+        console.log(['student',student]);
+        console.log(['teacher',teacher]);
+
+        if (student !== null && teacher !== null) {
+            if (!teacher.confirmed) {
+                await CoursesService.updateStudentEject(course.id, student.studentId);
+                isSuccess = await CoursesService.updateTeacherJoin(course.id, teacher.teacherId);
+            }
+        }
+        else if (student === null && teacher === null) {
+            isSuccess = await CoursesService.addStudent(course.id, req.body.userId); 
+        }
+        else if (student === null && teacher !== null) {
+            isSuccess = await CoursesService.updateTeacherJoin(course.id, teacher.teacherId);
+        }
+        else {
+            isSuccess = await CoursesService.updateStudentJoin(course.id, student.studentId);
         }
 
         if (isSuccess !== null) {
