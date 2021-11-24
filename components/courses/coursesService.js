@@ -8,7 +8,11 @@ const { Op } = require("sequelize");
 
 exports.findAll = () => {
     return Course.findAll({
-        include: [{ model: User, attributes: ['firstName', 'lastName', 'email'] }],
+        include: [{
+            model: User,
+            attributes: ['firstName', 'lastName', 'email'],
+            as: 'owner',
+        }],
         attributes: ['id', 'name', 'room', 'section', 'invitationId']
     });
 }
@@ -30,14 +34,18 @@ exports.delete = (courseId, userId) => {
     return Course.destroy({ where: { id: courseId, ownerId: userId } });
 }
 
-exports.update = (data, id) => {
-    return Course.update(data, { where: { id } });
+exports.update = (data, courseId, userID) => {
+    return Course.update(data, { where: { id: courseId, ownerId: userID } });
 }
 
 exports.findOne = (id) => {
     return Course.findOne({
         where: {[Op.or]: [{id: id}, {invitationId: id}]},
-        include: [{ model: User, attributes: ['firstName', 'lastName', 'email'] }],
+        include: [{
+            model: User,
+            attributes: ['firstName', 'lastName', 'email'],
+            as: 'owner'
+        }],
         attributes: ['id', 'name', 'room', 'section', 'invitationId']
     })
 }
@@ -110,3 +118,6 @@ exports.addStudent = (courseId, studentId) => {
     });
 }
 
+exports.findOneByInvitationId = (id) => {
+    return Course.findOne({ where: { invitationId: id } });
+}

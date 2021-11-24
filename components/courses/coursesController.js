@@ -19,8 +19,9 @@ exports.index = async (req, res) => {
 };
 
 exports.create = async (req, res) => {
-    const token = req.headers.authorization;
+    const token = req.cookies.token;
     const parsedToken = jwtDecode(token);
+
     if (!req.body) {
         res.status(400).send({
             message: "Content can not be empty!"
@@ -29,7 +30,7 @@ exports.create = async (req, res) => {
 
     let isGenerated = false;
     let invitationCode = '';
-    while(!isGenerated) {
+    while (!isGenerated) {
         const code = referralCodes.generate({
             length: 8
         });
@@ -47,19 +48,17 @@ exports.create = async (req, res) => {
                 message:
                     err.message || "Some error occurred while creating the course."
             });
-        };      
+        };
     }
-
 
     const course = {
         name: req.body.name,
-	    ownerId: parsedToken.user.id,
+        ownerId: parsedToken.user.id,
         section: req.body.section,
         subject: req.body.subject,
         room: req.body.room,
         invitationId: invitationCode
     };
-
 
     try {
         const data = await CoursesService.create(course);
@@ -74,7 +73,7 @@ exports.create = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
-    const token = req.headers.authorization;
+    const token = req.cookies.token;
     const parsedToken = jwtDecode(token);
     try {
         const num = await CoursesService.delete(req.params.id, parsedToken.user.id)
@@ -101,8 +100,11 @@ exports.update = async (req, res) => {
         });
     }
 
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+
     try {
-        const num = await CoursesService.update(req.body, req.params.id);
+        const num = await CoursesService.update(req.body, req.params.id, parsedToken.user.id);
         if (num == 1) {
             this.findOne(req, res);
         } else {
@@ -129,6 +131,7 @@ exports.findOne = async (req, res) => {
             });
         }
     } catch (err) {
+        console.log(err);
         res.status(500).send({
             message: err.message || "Some error occurred while finding the course."
         });
