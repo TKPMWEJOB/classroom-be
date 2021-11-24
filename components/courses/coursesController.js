@@ -19,7 +19,7 @@ exports.index = async (req, res) => {
 };
 
 exports.create = async (req, res) => {
-    const token = req.headers.authorization;
+    const token = req.cookies.token;
     const parsedToken = jwtDecode(token);
     if (!req.body) {
         res.status(400).send({
@@ -29,7 +29,7 @@ exports.create = async (req, res) => {
 
     let isGenerated = false;
     let invitationCode = '';
-    while(!isGenerated) {
+    while (!isGenerated) {
         const code = referralCodes.generate({
             length: 8
         });
@@ -47,13 +47,13 @@ exports.create = async (req, res) => {
                 message:
                     err.message || "Some error occurred while creating the course."
             });
-        };      
+        };
     }
 
 
     const course = {
         name: req.body.name,
-	    ownerId: parsedToken.user.id,
+        ownerId: parsedToken.user.id,
         section: req.body.section,
         subject: req.body.subject,
         room: req.body.room,
@@ -74,7 +74,7 @@ exports.create = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
-    const token = req.headers.authorization;
+    const token = req.cookies.token;
     const parsedToken = jwtDecode(token);
     try {
         const num = await CoursesService.delete(req.params.id, parsedToken.user.id)
@@ -100,9 +100,10 @@ exports.update = async (req, res) => {
             message: "Content can not be empty!"
         });
     }
-
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
     try {
-        const num = await CoursesService.update(req.body, req.params.id);
+        const num = await CoursesService.update(req.body, req.params.id, parsedToken.user.id);
         if (num == 1) {
             this.findOne(req, res);
         } else {
@@ -159,7 +160,7 @@ exports.inviteStudent = async (req, res) => {
         console.log(existingUser);
         if (existingUser !== null) {
             const studentId = existingUser.id;
-            await CoursesService.createStudent(courseId, studentId);            
+            await CoursesService.createStudent(courseId, studentId);
         }
     } catch (err) {
         console.log(err);
@@ -167,15 +168,15 @@ exports.inviteStudent = async (req, res) => {
 
     try {
         let info = await transporter.sendMail({
-            from: `${sender} <${emailSender}>`, 
-            to: emailReceiver, 
-            subject: "New invitation to classroom", 
-            text: 'You recieved message from ' + sender, 
+            from: `${sender} <${emailSender}>`,
+            to: emailReceiver,
+            subject: "New invitation to classroom",
+            text: 'You recieved message from ' + sender,
             html: "Hello,<br> You have an invitation to " + sender + "'s classroom<br><br> Please Click on the link to accept your invitation.<br><a href=" + invitationLink + ">" + invitationLink + "</a>"
         });
 
         if (info !== null) {
-            res.send({msg: 'Invitation sent!'});
+            res.send({ msg: 'Invitation sent!' });
         } else {
             res.status(404).send({
                 msg: 'Could not send invitation'
@@ -188,7 +189,7 @@ exports.inviteStudent = async (req, res) => {
     }
 };
 
-exports.updateStudent = async (req, res) => { 
+exports.updateStudent = async (req, res) => {
     if (!req.body) {
         res.status(400).send({
             msg: "Content can not be empty!"
@@ -199,7 +200,7 @@ exports.updateStudent = async (req, res) => {
         const course = await CoursesService.findOne(req.body.invitationId);
         const student = await CoursesService.findPendingStudent(course.id, req.body.userId);
         let isSuccess = null;
-        
+
         console.log(student);
         if (student !== null) {
             console.log('update');

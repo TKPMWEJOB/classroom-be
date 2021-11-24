@@ -114,7 +114,7 @@ exports.updateInfo = async (req, res) => {
 };
 
 exports.findOne = async (req, res) => {
-    const token = req.headers.authorization;
+    const token = req.cookies.token;
     const parsedToken = jwtDecode(token);
 
     try {
