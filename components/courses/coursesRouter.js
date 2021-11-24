@@ -17,6 +17,6 @@ router.put('/:id', passport.authorize('jwt'), coursesController.update);
 
 router.get('/:id', passport.authorize('jwt'), coursesController.findOne);
 
-router.get('/:id/people', coursesController.findAllPeople);
+router.get('/:id/people', passport.authorize('jwt'), coursesController.findAllPeople);
 
 module.exports = router;

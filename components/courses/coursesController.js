@@ -82,6 +82,14 @@ exports.create = async (req, res) => {
 exports.delete = async (req, res) => {
     const token = req.cookies.token;
     const parsedToken = jwtDecode(token);
+
+    const role = await Permission.getRole(parsedToken.user.id, req.params.id);
+    if (role != 'teacher' && role != 'owner') {
+        res.status(403).send({
+            message: 'Forbbiden'
+        });
+    }
+
     try {
         const num = await CoursesService.delete(req.params.id, parsedToken.user.id)
         if (num == 1) {
@@ -101,13 +109,22 @@ exports.delete = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+
+    const role = await Permission.getRole(parsedToken.user.id, req.params.id);
+    if (role != 'teacher' && role != 'owner') {
+        res.status(403).send({
+            message: 'Forbbiden'
+        });
+    }
+
     if (!req.body) {
         res.status(400).send({
             message: "Content can not be empty!"
         });
     }
-    const token = req.cookies.token;
-    const parsedToken = jwtDecode(token);
+    
     try {
         const num = await CoursesService.update(req.body, req.params.id, parsedToken.user.id);
         if (num == 1) {
@@ -188,7 +205,7 @@ exports.inviteMember = async (req, res) => {
             console.log(student);
             console.log(teacher);
             if (student !== null || teacher !== null) {
-                if(student !== null) {
+                if (student !== null) {
                     if (student.confirmed && role === 'student') {
                         isAcceptSendMail = false;
                     }
@@ -218,9 +235,9 @@ exports.inviteMember = async (req, res) => {
                     isAcceptSendMail = true;
                 }
             }
-            
+
         }
-        else if (existingUser === null && role == 'teacher'){
+        else if (existingUser === null && role == 'teacher') {
             isAcceptSendMail = false;
             isInviteTeacherError = true;
         }
@@ -240,7 +257,7 @@ exports.inviteMember = async (req, res) => {
                 text: 'You recieved message from ' + sender,
                 html: "Hello,<br> You have an invitation to " + sender + "'s classroom<br><br> Please Click on the link to accept your invitation.<br><a href=" + invitationLink + ">" + invitationLink + "</a>"
             });
-    
+
             if (info !== null) {
                 res.send({ msg: 'Invitation sent!' });
             } else {
@@ -264,7 +281,7 @@ exports.inviteMember = async (req, res) => {
             msg: `${role} has already in class`
         });
     }
-    
+
 };
 
 exports.invitationHandle = async (req, res) => {
@@ -280,8 +297,8 @@ exports.invitationHandle = async (req, res) => {
         const teacher = await CoursesService.findPendingTeacher(course.id, req.body.userId);
         let isSuccess = null;
 
-        console.log(['student',student]);
-        console.log(['teacher',teacher]);
+        console.log(['student', student]);
+        console.log(['teacher', teacher]);
 
         if (student !== null && teacher !== null) {
             if (!teacher.confirmed) {
@@ -290,7 +307,7 @@ exports.invitationHandle = async (req, res) => {
             }
         }
         else if (student === null && teacher === null) {
-            isSuccess = await CoursesService.addStudent(course.id, req.body.userId); 
+            isSuccess = await CoursesService.addStudent(course.id, req.body.userId);
         }
         else if (student === null && teacher !== null) {
             isSuccess = await CoursesService.updateTeacherJoin(course.id, teacher.teacherId);
@@ -317,6 +334,15 @@ exports.invitationHandle = async (req, res) => {
 }
 
 exports.findAllPeople = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+
+    const role = await Permission.getRole(parsedToken.user.id, req.params.id);
+    if (role != 'teacher' && role != 'owner' && role != 'student') {
+        res.status(403).send({
+            message: 'Forbbiden'
+        });
+    }
     try {
         const students = await CoursesService.findAllStudents(req.params.id);
         const teachers = await CoursesService.findAllTeachers(req.params.id);

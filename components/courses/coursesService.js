@@ -31,7 +31,14 @@ exports.create = (newCourse) => {
 }
 
 exports.delete = (courseId, userId) => {
-    return Course.destroy({ where: { id: courseId, ownerId: userId } });
+    return sequelize.transaction(async (t) => {
+        const num = await Course.destroy({ where: { id: courseId, ownerId: userId } }, { transaction: t });
+        if (num == 1) {
+            await Teacher.destroy({ where: { courseId: courseId } }, { transaction: t });
+            await Student.destroy({ where: { courseId: courseId } }, { transaction: t });
+        }
+        return num;
+    });
 }
 
 exports.update = (data, courseId, userID) => {
@@ -80,11 +87,11 @@ exports.findPendingStudent = (courseId, studentId) => {
 }
 
 exports.findPendingTeacher = (courseId, teacherId) => {
-    return Teacher.findOne({ 
-        where: { 
+    return Teacher.findOne({
+        where: {
             courseId: courseId,
             teacherId: teacherId
-        } 
+        }
     });
 }
 
@@ -121,12 +128,12 @@ exports.updateStudentJoin = (courseId, studentId) => {
 
 exports.updateStudentEject = (courseId, studentId) => {
     return Student.update({
-        confirmed: false 
-    }, { 
-        where: { 
+        confirmed: false
+    }, {
+        where: {
             courseId: courseId,
             studentId: studentId
-        } 
+        }
     });
 }
 
@@ -141,23 +148,23 @@ exports.addStudent = (courseId, studentId) => {
 
 exports.updateTeacherJoin = (courseId, teacherId) => {
     return Teacher.update({
-        confirmed: true 
-    }, { 
-        where: { 
+        confirmed: true
+    }, {
+        where: {
             courseId: courseId,
             teacherId: teacherId
-        } 
+        }
     });
 }
 
 exports.updateTeacherEject = (courseId, teacherId) => {
     return Teacher.update({
-        confirmed: false 
-    }, { 
-        where: { 
+        confirmed: false
+    }, {
+        where: {
             courseId: courseId,
             teacherId: teacherId
-        } 
+        }
     });
 }
 
