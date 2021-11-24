@@ -31,7 +31,7 @@ exports.signin = async (req, res, next) => {
                 lastName: user.lastName,
             }
             const jwtToken = jwt.sign({ user: body }, process.env.JWT_SECRET_KEY);
-            let maxAge = req.body.remember ? 7 * 24 * 60 * 60 * 1000 : 30 * 1000; //remeber me 7 days else 2h 
+            let maxAge = req.body.remember ? 7 * 24 * 60 * 60 * 1000 : 2* 60 * 60 * 1000; //remeber me 7 days else 2h 
 
             //res.json({body, token});
             res.status(200)

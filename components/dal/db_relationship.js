@@ -28,14 +28,16 @@ function applyExtraSetup() {
         foreignKey: {
             name: 'teacherId',
             allowNull: false
-        }
+        },
+        as: 'teachers'
     });
     Course.belongsToMany(User, {
         through: Teacher,
         foreignKey: {
             name: 'courseId',
             allowNull: false
-        }
+        },
+        as: 'teachers'
     });
 
     // student relationship
@@ -44,14 +46,16 @@ function applyExtraSetup() {
         foreignKey: {
             name: 'studentId',
             allowNull: false
-        }
+        },
+        as: 'students'
     });
     Course.belongsToMany(User, {
         through: Student,
         foreignKey: {
             name: 'courseId',
             allowNull: false
-        }
+        },
+        as: 'students'
     });
 
 }
