@@ -13,7 +13,7 @@ exports.findAll = () => {
             attributes: ['firstName', 'lastName', 'email'],
             as: 'owner',
         }],
-        attributes: ['id', 'name', 'room', 'section', 'invitationId']
+        attributes: ['id', 'name', 'room', 'section', 'invitationId', "ownerId"]
     });
 }
 
