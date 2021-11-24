@@ -13,7 +13,7 @@ exports.findAll = () => {
             attributes: ['firstName', 'lastName', 'email'],
             as: 'owner',
         }],
-        attributes: ['id', 'name', 'room', 'section', 'invitationId']
+        attributes: ['id', 'name', 'room', 'section', 'invitationId', 'ownerId']
     });
 }
 
@@ -40,13 +40,13 @@ exports.update = (data, courseId, userID) => {
 
 exports.findOne = (id) => {
     return Course.findOne({
-        where: {[Op.or]: [{id: id}, {invitationId: id}]},
+        where: { [Op.or]: [{ id: id }, { invitationId: id }] },
         include: [{
             model: User,
             attributes: ['firstName', 'lastName', 'email'],
             as: 'owner'
         }],
-        attributes: ['id', 'name', 'room', 'section', 'invitationId']
+        attributes: ['id', 'name', 'room', 'section', 'invitationId', 'ownerId']
     })
 }
 
@@ -71,11 +71,11 @@ exports.createTeacher = (courseId, teacherId) => {
 }
 
 exports.findPendingStudent = (courseId, studentId) => {
-    return Student.findOne({ 
-        where: { 
+    return Student.findOne({
+        where: {
             courseId: courseId,
             studentId: studentId
-        } 
+        }
     });
 }
 
@@ -89,33 +89,33 @@ exports.findPendingTeacher = (courseId, teacherId) => {
 }
 
 exports.findOneStudent = (courseId, studentId) => {
-    return Student.findOne({ 
-        where: { 
+    return Student.findOne({
+        where: {
             courseId: courseId,
             studentId: studentId,
             confirmed: true
-        } 
+        }
     });
 }
 
 exports.findOneTeacher = (courseId, teacherId) => {
-    return Teacher.findOne({ 
-        where: { 
+    return Teacher.findOne({
+        where: {
             courseId: courseId,
             teacherId: teacherId,
             confirmed: true
-        } 
+        }
     });
 }
 
 exports.updateStudentJoin = (courseId, studentId) => {
     return Student.update({
-        confirmed: true 
-    }, { 
-        where: { 
+        confirmed: true
+    }, {
+        where: {
             courseId: courseId,
             studentId: studentId
-        } 
+        }
     });
 }
 
@@ -169,3 +169,46 @@ exports.addTeacher = (courseId, teacherId) => {
     });
 }
 
+exports.findAllStudents = (courseId) => {
+    return Course.findAll({
+        where: {
+            id: courseId,
+            //confirmed: true
+        },
+        include: [{
+            model: User,
+            attributes: ['id', 'firstName', 'lastName', 'email'],
+            as: 'students'
+        }],
+        attributes: ['id']
+    });
+}
+
+exports.findAllTeachers = (courseId) => {
+    return Course.findAll({
+        where: {
+            id: courseId,
+            //confirmed: true
+        },
+        include: [{
+            model: User,
+            attributes: ['id', 'firstName', 'lastName', 'email'],
+            as: 'teachers'
+        }],
+        attributes: ['id']
+    });
+}
+
+exports.findOneWithTeacherId = (courseId, userId) => {
+    return Course.findOne({
+        where: {
+            id: courseId,
+        },
+        include: [{
+            model: User,
+            attributes: ['id', 'firstName', 'lastName', 'email'],
+            as: 'teachers'
+        }],
+        attributes: ['id', 'name', 'room', 'section', 'invitationId']
+    })
+}
