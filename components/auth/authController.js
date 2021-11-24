@@ -5,6 +5,7 @@ const passport = require('passport');
 const UsersService = require('../users/usersService');
 
 exports.signin = async (req, res, next) => {
+    console.log('signin');
     await passport.authenticate('local', {session: false}, (err, user, info) => {
         console.log(err);
         console.log(user);
