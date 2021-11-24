@@ -172,11 +172,14 @@ exports.inviteMember = async (req, res) => {
     let isAcceptSendMail = false;
 
     try {
+        console.log('access');
         const existingUser = await UsersService.findOneByEmail(emailReceiver);
         if (existingUser !== null) {
             const userId = existingUser.id;
             const student = await CoursesService.findPendingStudent(courseId, userId);
             const teacher = await CoursesService.findPendingTeacher(courseId, userId);
+            console.log(student);
+            console.log(teacher);
             console.log('compare');
             if (student !== null || teacher !== null) {
                 if(student !== null) {
@@ -246,7 +249,7 @@ exports.inviteMember = async (req, res) => {
     
 };
 
-exports.updateStudent = async (req, res) => {
+exports.invitationHandle = async (req, res) => {
     if (!req.body) {
         res.status(400).send({
             msg: "Content can not be empty!"
@@ -259,8 +262,8 @@ exports.updateStudent = async (req, res) => {
         const teacher = await CoursesService.findPendingTeacher(course.id, req.body.userId);
         let isSuccess = null;
 
-        console.log(student);
-        console.log(teacher);
+        console.log(['student',student]);
+        console.log(['teacher',teacher]);
 
         if (student !== null && teacher !== null) {
             if (!teacher.confirmed) {

@@ -9,7 +9,7 @@ router.post('/', passport.authorize('jwt'), coursesController.create);
 
 router.put('/invite-member', passport.authorize('jwt'), coursesController.inviteMember);
 
-router.put('/student-accepted', passport.authorize('jwt'), coursesController.updateStudent);
+router.put('/invitation-accepted', passport.authorize('jwt'), coursesController.invitationHandle);
 
 router.delete('/:id', passport.authorize('jwt'), coursesController.delete);
 
