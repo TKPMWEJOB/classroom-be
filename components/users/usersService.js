@@ -1,6 +1,5 @@
 "use strict";
 const User = require('./usersModel');
-const UserInfo = require('./usersInfoModel');
 
 exports.findAll = () => {
     return User.findAll({});
