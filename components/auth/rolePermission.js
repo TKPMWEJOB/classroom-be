@@ -12,7 +12,7 @@ module.exports.getRole = async (userId, courseId) => {
     }
 
     try {
-        course = await CoursesService.findOneTeacher(courseId, userId);
+        course = await CoursesService.findPendingTeacher(courseId, userId);
         if (course) {
             return 'teacher';
         }
@@ -21,7 +21,7 @@ module.exports.getRole = async (userId, courseId) => {
     }
 
     try {
-        course = await CoursesService.findOneStudent(courseId, userId);
+        course = await CoursesService.findPendingStudent(courseId, userId);
         if (course) {
             return 'student';
         }
