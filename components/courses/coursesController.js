@@ -179,6 +179,7 @@ exports.inviteMember = async (req, res) => {
     try {
         console.log('access');
         const existingUser = await UsersService.findOneByEmail(emailReceiver);
+        console.log(existingUser);
         if (existingUser !== null) {
             const userId = existingUser.id;
             const student = await CoursesService.findPendingStudent(courseId, userId);
@@ -218,6 +219,9 @@ exports.inviteMember = async (req, res) => {
                 }
             }
             
+        }
+        else {
+            isAcceptSendMail = true;
         }
     } catch (err) {
         console.log(err);
