@@ -35,7 +35,7 @@ exports.signin = async (req, res, next) => {
 
             //res.json({body, token});
             res.status(200)
-                .cookie("token", jwtToken, {maxAge, httpOnly: true})
+                .cookie("token", jwtToken, {maxAge, httpOnly: true, sameSite: 'None'})
                 .send(JSON.stringify({
                     body,
                     jwtToken,
