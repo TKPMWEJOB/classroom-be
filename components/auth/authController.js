@@ -114,7 +114,7 @@ exports.google = async (req, res, next) => {
             let maxAge = 7 * 24 * 60 * 60 * 1000; //7 days 
             //res.json({body, token});
             res.status(200)
-                .cookie("token", jwtToken, {maxAge, httpOnly: true})
+                .cookie("token", jwtToken, {maxAge, httpOnly: true, sameSite: "none", secure: true})
                 .send(JSON.stringify({
                     body: userInfo,
                     jwtToken,
