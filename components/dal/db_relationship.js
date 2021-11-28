@@ -2,6 +2,7 @@ const User = require('../users/usersModel');
 const Course = require('../courses/coursesModel').Course;
 const Teacher = require('../courses/coursesModel').Teacher;
 const Student = require('../courses/coursesModel').Student;
+const GradeCategory = require('../gradeStructure/gradeStructureModel');
 
 function applyExtraSetup() {
     // Course - owner relationship
@@ -57,6 +58,21 @@ function applyExtraSetup() {
         as: 'students'
     });
 
+    // grade relationship
+    Course.hasMany(GradeCategory, {
+        foreignKey: {
+            name: 'courseId',
+            allowNull: false
+        }
+    });
+
+    GradeCategory.belongsTo(Course, {
+        foreignKey: {
+            name: 'courseId',
+            allowNull: false
+        },
+        targetKey: 'id'
+    });
 }
 
 module.exports = { applyExtraSetup };
