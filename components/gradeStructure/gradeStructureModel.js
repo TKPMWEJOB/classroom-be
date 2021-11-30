@@ -13,6 +13,8 @@ const GradeStructure = sequelize.define('GradeStructure', {
     },
     point: {
         type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: false
     },
     index: {
         type: Sequelize.INTEGER,

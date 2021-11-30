@@ -153,6 +153,7 @@ exports.updateOne = async (req, res) => {
             });
         }
     } catch (err) {
+        console.log(err);
         res.status(500).send({
             message: err.message || "Some error occurred while updating the grade."
         });
