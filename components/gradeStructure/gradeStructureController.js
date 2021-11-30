@@ -41,13 +41,18 @@ exports.create = async (req, res) => {
         });
     }
 
+    const newGrade = {
+        courseId: req.params.id,
+        title: req.body.title,
+        point: req.body.point,
+        index: req.body.index
+    }
+
     try {
-        await GradesService.create(req.params.id, req.body.index);
+        await GradesService.create(newGrade);
         const gradeStructure = await GradesService.findAll(req.params.id);
         res.send(gradeStructure);
-        /*res.send({
-            message: 'Create successfully!'
-        });*/
+
     } catch (err) {
         console.log(err);
         res.status(500).send({
@@ -104,7 +109,7 @@ exports.updateAll = async (req, res) => {
             message: "Content can not be empty!"
         });
     }
-    
+
     try {
         const result = await GradesService.updateAll(req.params.id, req.body.data);
         res.send(result);
@@ -132,7 +137,7 @@ exports.updateOne = async (req, res) => {
             message: "Content can not be empty!"
         });
     }
-    
+
     try {
         console.log(req.body.data);
         const num = await GradesService.updateOne(req.params.id, req.body.data);

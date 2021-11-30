@@ -14,13 +14,8 @@ exports.findAll = (courseId) => {
     });
 }
 
-exports.create = (courseId, index) => {
-    return GradeStructure.create({
-        courseId: courseId,
-        title: '',
-        point: 0,
-        index: index
-    });
+exports.create = (newGrade) => {
+    return GradeStructure.create(newGrade);
 }
 
 exports.delete = (courseId, gradeStructureId) => {
@@ -28,30 +23,30 @@ exports.delete = (courseId, gradeStructureId) => {
 }
 
 exports.updateAll = async (courseId, gradeList) => {
-    
-        
-        /*const newGradeStructure = tempStructure.map(function(obj) { 
-			obj.index = index; 
-			index++;
-			return obj;
-		});*/
-        
-    const result = gradeList.map( async function(obj) {
+
+
+    /*const newGradeStructure = tempStructure.map(function(obj) { 
+        obj.index = index; 
+        index++;
+        return obj;
+    });*/
+
+    const result = gradeList.map(async function (obj) {
         await GradeStructure.update({
             title: obj.title,
             point: obj.point,
             index: obj.index
-        }, { 
-            where: { 
-                id: obj.id, 
-                courseId: courseId 
-            } 
+        }, {
+            where: {
+                id: obj.id,
+                courseId: courseId
+            }
         });
         return obj;
     });
 
     return result;
-    
+
 }
 
 exports.updateOne = async (courseId, grade) => {
@@ -59,12 +54,10 @@ exports.updateOne = async (courseId, grade) => {
         title: grade.title,
         point: grade.point,
         index: grade.index
-    }, { 
-        where: { 
-            id: grade.id, 
-            courseId: courseId 
-        } 
+    }, {
+        where: {
+            id: grade.id,
+            courseId: courseId
+        }
     });
 }
-
-
