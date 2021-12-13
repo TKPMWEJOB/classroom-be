@@ -125,6 +125,22 @@ function applyExtraSetup() {
         onDelete: 'cascade',
         targetKey: 'id'
     });
+
+    // OfficialStudent Course relationship
+    Course.hasMany(OfficialStudent, {
+        foreignKey: {
+            name: 'courseId',
+            allowNull: false
+        }
+    });
+
+    OfficialStudent.belongsTo(Course, {
+        foreignKey: {
+            name: 'courseId',
+            allowNull: false
+        },
+        targetKey: 'id'
+    });
 }
 
 module.exports = { applyExtraSetup };

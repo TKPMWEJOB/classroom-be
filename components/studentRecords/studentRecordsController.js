@@ -8,7 +8,7 @@ exports.index = async (req, res) => {
 
 exports.uploadStudentList = async (req, res) => {
     try {
-        console.log(req.file);
+        const courseId = req.params.id;
         const readable = new Readable()
 
         const students = [];
@@ -24,6 +24,8 @@ exports.uploadStudentList = async (req, res) => {
                 });
             })
             .on("data", (row) => {
+                let data = row;
+                data.courseId = courseId;
                 students.push(row);
             })
             .on("end", async () => {
