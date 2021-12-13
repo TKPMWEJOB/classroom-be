@@ -2,7 +2,9 @@ const User = require('../users/usersModel');
 const Course = require('../courses/coursesModel').Course;
 const Teacher = require('../courses/coursesModel').Teacher;
 const Student = require('../courses/coursesModel').Student;
+const OfficialStudent = require('../courses/coursesModel').OfficialStudent;
 const GradeCategory = require('../gradeStructure/gradeStructureModel');
+const StudentRecord = require('../studentRecords/studentRecordsModel');
 
 function applyExtraSetup() {
     // Course - owner relationship
@@ -69,6 +71,52 @@ function applyExtraSetup() {
     GradeCategory.belongsTo(Course, {
         foreignKey: {
             name: 'courseId',
+            allowNull: false
+        },
+        targetKey: 'id'
+    });
+
+    // Student Record relationship
+    Course.hasMany(StudentRecord, {
+        foreignKey: {
+            name: 'courseId',
+            allowNull: false
+        }
+    });
+
+    StudentRecord.belongsTo(Course, {
+        foreignKey: {
+            name: 'courseId',
+            allowNull: false
+        },
+        targetKey: 'id'
+    });
+
+    GradeCategory.hasMany(StudentRecord, {
+        foreignKey: {
+            name: 'gradeId',
+            allowNull: false
+        }
+    });
+
+    StudentRecord.belongsTo(GradeCategory, {
+        foreignKey: {
+            name: 'gradeId',
+            allowNull: false
+        },
+        targetKey: 'id'
+    });
+
+    OfficialStudent.hasMany(StudentRecord, {
+        foreignKey: {
+            name: 'studentId',
+            allowNull: false
+        }
+    });
+
+    StudentRecord.belongsTo(OfficialStudent, {
+        foreignKey: {
+            name: 'studentId',
             allowNull: false
         },
         targetKey: 'id'
