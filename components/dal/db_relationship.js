@@ -90,6 +90,7 @@ function applyExtraSetup() {
             name: 'courseId',
             allowNull: false
         },
+        onDelete: 'cascade',
         targetKey: 'id'
     });
 
@@ -105,6 +106,7 @@ function applyExtraSetup() {
             name: 'gradeId',
             allowNull: false
         },
+        onDelete: 'cascade',
         targetKey: 'id'
     });
 
@@ -120,6 +122,7 @@ function applyExtraSetup() {
             name: 'studentId',
             allowNull: false
         },
+        onDelete: 'cascade',
         targetKey: 'id'
     });
 }
