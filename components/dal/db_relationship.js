@@ -2,9 +2,10 @@ const User = require('../users/usersModel');
 const Course = require('../courses/coursesModel').Course;
 const Teacher = require('../courses/coursesModel').Teacher;
 const Student = require('../courses/coursesModel').Student;
-const OfficialStudent = require('../courses/coursesModel').OfficialStudent;
 const GradeCategory = require('../gradeStructure/gradeStructureModel');
-const StudentRecord = require('../studentRecords/studentRecordsModel');
+const StudentRecord = require('../studentRecords/studentRecordsModel').StudentRecord;
+const OfficialStudent = require('../studentRecords/studentRecordsModel').OfficialStudent;
+
 
 function applyExtraSetup() {
     // Course - owner relationship
