@@ -1,7 +1,7 @@
 const CoursesService = require('../courses/coursesService');
 const jwtDecode = require('jwt-decode');
 
-module.exports.getRole = async (userId, courseId) => {
+const getRole = async (userId, courseId) => {
     let course;
     try {
         course = await CoursesService.findOne(courseId);
@@ -33,11 +33,11 @@ module.exports.getRole = async (userId, courseId) => {
     return 'guest';
 }
 
-module.exports.grantPermission = (roles) => {
+exports.grantPermission = (roles) => {
     return async function (req, res, next) {
         const token = req.cookies.token;
         const parsedToken = jwtDecode(token);
-        const role = await this.getRole(parsedToken.user.id, req.params.id);
+        const role = await getRole(parsedToken.user.id, req.params.id);
         if (roles.includes(role)) {
             next();
         }
@@ -48,3 +48,5 @@ module.exports.grantPermission = (roles) => {
         }
     }
 }
+
+module.exports.getRole = getRole;
