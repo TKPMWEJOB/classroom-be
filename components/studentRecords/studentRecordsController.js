@@ -15,7 +15,7 @@ exports.uploadStudentList = async (req, res) => {
                 courseId: req.params.id
             }
         })
-        await StudentRecordsService.resetList();
+        await StudentRecordsService.resetList(req.params.id);
         await StudentRecordsService.insertList(students);
         res.status(200).send({
             message:

@@ -4,8 +4,10 @@ exports.insertList = async (studentlist) => {
     return OfficialStudent.bulkCreate(studentlist);
 }
 
-exports.resetList = async () => {
+exports.resetList = async (id) => {
     return OfficialStudent.destroy({
-        where: {},
+        where: {
+            courseId: id
+        },
     });
 }
