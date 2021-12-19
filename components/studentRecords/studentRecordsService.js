@@ -5,7 +5,19 @@ exports.insertStudentList = async (studentlist) => {
     return OfficialStudent.bulkCreate(studentlist);
 }
 
-exports.resetStudentList = async (id) => {
+exports.updateOrInsertStudent = async (student) => {
+    return OfficialStudent.upsert(student, {
+        where: {id: student.id, courseId: student.courseId}
+    });
+}
+
+exports.updateOrInsertStudentRecord = async (record) => {
+    return StudentRecord.findOrCreate({
+        where: {...record}
+    });
+}
+
+exports.resetList = async (id) => {
     return OfficialStudent.destroy({
         where: {
             courseId: id
@@ -22,5 +34,18 @@ exports.resetGradeList = async (id) => {
         where: {
             courseId: id
         },
+    });
+}
+
+exports.getList = async (courseId) => {
+    return OfficialStudent.findAll({
+        where: {courseId: courseId},
+        include: [{
+            model: StudentRecord,
+            attributes: ['point', 'gradeId', 'studentId'],
+        }],
+        attributes: ['id', 'fullName'],
+        raw: true,
+
     });
 }

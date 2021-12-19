@@ -61,3 +61,11 @@ exports.updateOne = async (courseId, grade) => {
         }
     });
 }
+
+exports.countGradeInCourse = async (courseId) => {
+    return GradeStructure.count({
+        where: {
+            courseId: courseId
+        }
+    });
+}
