@@ -51,8 +51,9 @@ exports.uploadStudentList = async (req, res) => {
                 fullName: data.fullName,
                 courseId,
             }
-        })
+        });
         await students.forEach(async (student) => {
+            console.log(student);
             await StudentRecordsService.updateOrInsertStudent(student);
 
             await gradesList.forEach(async (grade) => {
@@ -80,9 +81,30 @@ exports.uploadStudentList = async (req, res) => {
 
 exports.uploadFullGrade = async (req, res) => {
     try {
-        console.log(req.body);
-        const data = req.body.data;
-        const students = data.map(item => {
+        const studentList = req.body.data;
+        const courseId = req.params.id;
+        //await StudentRecordsService.resetGradeList(courseId);
+        await studentList.forEach(async (student) => {
+            const newStudent = {
+                id: student.studentId,
+                fullName: student.fullName,
+                courseId,
+            }   
+            await StudentRecordsService.updateOrInsertStudent(newStudent);
+            await student.gradesPoint.forEach(async (grade) => {
+                let studentRecord = { 
+                    courseId,
+                    gradeId: grade.gradeId,
+                    studentId: student.studentId,
+                    point: grade.point
+                };
+                await StudentRecordsService.updateOrInsertStudentRecord(studentRecord);
+            })
+        });
+
+        
+
+        /*const students = data.map(item => {
             return {
                 id: item.studentId,
                 fullName: item.fullName,
@@ -114,7 +136,7 @@ exports.uploadFullGrade = async (req, res) => {
         await StudentRecordsService.resetStudentList(req.params.id);
         await StudentRecordsService.insertStudentList(students);
         await StudentRecordsService.resetGradeList(req.params.id);
-        await StudentRecordsService.insertGradeList(studentRecords);
+        await StudentRecordsService.insertGradeList(studentRecords);*/
 
         res.status(200).send({
             message:

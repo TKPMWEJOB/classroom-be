@@ -12,8 +12,12 @@ exports.updateOrInsertStudent = async (student) => {
 }
 
 exports.updateOrInsertStudentRecord = async (record) => {
-    return StudentRecord.findOrCreate({
-        where: {...record}
+    return StudentRecord.upsert(record, {
+        where: {
+            courseId: record.courseId,
+            studentId: record.studentId,
+            GradeId: record.GradeId
+        }
     });
 }
 
