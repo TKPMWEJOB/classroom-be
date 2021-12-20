@@ -11,12 +11,23 @@ exports.updateOrInsertStudent = async (student) => {
     });
 }
 
-exports.updateOrInsertStudentRecord = async (record) => {
-    return StudentRecord.upsert(record, {
+exports.findIdStudentRecord = async (record) => {
+    return StudentRecord.findOne({
         where: {
             courseId: record.courseId,
             studentId: record.studentId,
-            GradeId: record.GradeId
+            gradeId: record.gradeId
+        }
+    })
+}
+
+exports.updateOrInsertStudentRecord = async (record) => {
+    return StudentRecord.upsert(record, {
+        where: {
+            id: record.id,
+            courseId: record.courseId,
+            studentId: record.studentId,
+            gradeId: record.gradeId
         }
     });
 }

@@ -152,3 +152,33 @@ exports.uploadFullGrade = async (req, res) => {
         });
     }
 };
+
+exports.updateOneRow = async (req, res) => {
+    try {
+        const student = req.body.data;
+        const courseId = req.params.id;
+        const gradesList = await GradesService.findAll(courseId);
+        
+        await gradesList.forEach(async (grade, index) => {
+            let saveRow = {
+                studentId: student.studentId,
+                point: student[`grade${index}`],
+                courseId,
+                gradeId: grade.id,
+            }
+            const record = await StudentRecordsService.findIdStudentRecord(saveRow);
+            saveRow.id = record.id;
+            await StudentRecordsService.updateOrInsertStudentRecord(saveRow);
+        });
+        
+        res.status(200).send({
+            message:
+                "Imported successfully",
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            message: "Could not import data",
+        });
+    }
+};
