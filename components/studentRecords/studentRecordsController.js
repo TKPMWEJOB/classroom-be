@@ -24,10 +24,13 @@ exports.index = async (req, res) => {
                 fullName: data[i].fullName,
             });
             let pointList = [];
+            let total = 0;
             for(let j = 0; j < numGrade; j++) {
                 pointList.push(data[i + j]["StudentRecords.point"]);
                 resArr[i / numGrade][`grade${j}`] = pointList[j];
+                total += pointList[j];
             }
+            resArr[i / numGrade]['total'] = total;
         }
         res.send(resArr);
     } catch (err) {
