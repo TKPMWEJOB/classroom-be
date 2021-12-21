@@ -27,7 +27,7 @@ exports.index = async (req, res) => {
             let total = 0;
             for(let j = 0; j < numGrade; j++) {
                 pointList.push(data[i + j]["StudentRecords.point"]);
-                resArr[i / numGrade][`grade${j}`] = pointList[j];
+                resArr[i / numGrade][`grade${data[i + j]["StudentRecords.gradeId"]}`] = pointList[j];
                 total += pointList[j];
             }
             resArr[i / numGrade]['total'] = total;
@@ -140,6 +140,26 @@ exports.uploadFullGrade = async (req, res) => {
         await StudentRecordsService.insertStudentList(students);
         await StudentRecordsService.resetGradeList(req.params.id);
         await StudentRecordsService.insertGradeList(studentRecords);*/
+
+        res.status(200).send({
+            message:
+                "Imported successfully",
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            message: "Could not import data",
+        });
+    }
+};
+
+
+exports.publishGrade = async (req, res) => {
+    try {
+        const student = req.body.data;
+        const courseId = req.params.id;
+
+        await StudentRecordsService.publishStudentRecord(courseId, student);
 
         res.status(200).send({
             message:

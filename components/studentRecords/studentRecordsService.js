@@ -53,3 +53,16 @@ exports.getList = async (courseId) => {
 
     });
 }
+
+exports.publishStudentRecord = async (courseId, student) => {
+    return StudentRecord.update(
+        {
+            publish: true
+        }, {
+        where: {
+            courseId: courseId,
+            studentId: student.studentId,
+            gradeId: student.gradeId
+        }
+    });
+}
