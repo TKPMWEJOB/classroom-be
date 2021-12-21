@@ -1,38 +1,76 @@
 const StudentRecordsService = require('./studentRecordsService');
+const usersService = require('../users/usersService');
 const GradesService = require('../gradeStructure/gradeStructureService');
+const jwtDecode = require('jwt-decode');
+const Permission = require('../auth/rolePermission');
 
 exports.index = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
     const courseId = req.params.id;
+    const gradesList = await GradesService.findAll(courseId);
+    const numGrade = await GradesService.countGradeInCourse(courseId);
+    let data = [];
     try {
-        const numGrade = await GradesService.countGradeInCourse(courseId);
-        const gradesList = await GradesService.findAll(courseId);
-        const data = await StudentRecordsService.getList(courseId);
-        console.log(data);
-/*
-        let res = [];
-        gradesList.forEach( grade => {
-            let row = {
-                studentId
-            }
-        })
-*/
-        let resArr = [];
-        for(let i = 0; i < data.length; i = i + numGrade) {
-            resArr.push({
-                id: i / numGrade,
-                studentId: data[i].id,
-                fullName: data[i].fullName,
+        const role = await Permission.getRole(parsedToken.user.id, courseId);
+        if (role != 'teacher' && role != 'owner' && role != 'student') {
+            res.status(500).send({
+                message: 'Forbbiden'
             });
-            let pointList = [];
-            let total = 0;
-            for(let j = 0; j < numGrade; j++) {
-                pointList.push(data[i + j]["StudentRecords.point"]);
-                resArr[i / numGrade][`grade${j}`] = pointList[j];
-                total += pointList[j];
-            }
-            resArr[i / numGrade]['total'] = total;
         }
-        res.send(resArr);
+        else if (role != 'teacher' && role != 'owner') {
+            const student = await usersService.findOne(parsedToken.user.id);
+            data = await StudentRecordsService.getStudentGrade(student.studentID, courseId);
+            let resArr = [];
+            for(let i = 0; i < data.length; i = i + numGrade) {
+                resArr.push({
+                    id: i / numGrade,
+                    studentId: data[i].id,
+                    fullName: data[i].fullName,
+                });
+                let pointList = [];
+                let total = 0;
+                for(let j = 0; j < numGrade; j++) {
+                    try {
+                        pointList.push(data[i + j]["StudentRecords.point"]);
+                        resArr[i / numGrade][`grade${j}`] = pointList[j];
+                        total += pointList[j];
+                    }
+                    catch {
+                        resArr[i / numGrade][`grade${j}`] = null;
+                    }
+                }
+                resArr[i / numGrade]['total'] = total;
+            }
+            res.send(resArr);
+        } 
+        else {
+            data = await StudentRecordsService.getList(courseId);
+            let resArr = [];
+            for(let i = 0; i < data.length; i = i + numGrade) {
+                resArr.push({
+                    id: i / numGrade,
+                    studentId: data[i].id,
+                    fullName: data[i].fullName,
+                });
+                let pointList = [];
+                let total = 0;
+                for(let j = 0; j < numGrade; j++) {
+                    if(data[i + j]["StudentRecords.point"] != "undefined") {
+                        pointList.push(data[i + j]["StudentRecords.point"]);
+                        resArr[i / numGrade][`grade${j}`] = pointList[j];
+                        total += pointList[j];
+                    }
+                    else {
+                        resArr[i / numGrade][`grade${j}`] = null;
+                    }
+                }
+                resArr[i / numGrade]['total'] = total;
+            }
+            res.send(resArr);
+        }
+        console.log(data);
+        
     } catch (err) {
         console.log(err);
         res.status(500).send({

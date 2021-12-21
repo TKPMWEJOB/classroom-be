@@ -65,6 +65,20 @@ exports.getList = async (courseId) => {
     });
 }
 
+exports.getStudentGrade = async (studentId, courseId) => {
+    return OfficialStudent.findAll({
+        where: {courseId: courseId},
+        include: [{
+            model: StudentRecord,
+            where: {publish: true, studentId: studentId},
+            attributes: ['point', 'gradeId', 'studentId'],
+        }],
+        attributes: ['id', 'fullName'],
+        raw: true,
+
+    });
+}
+
 exports.publishStudentRecord = async (courseId, student) => {
     return StudentRecord.update(
         {
