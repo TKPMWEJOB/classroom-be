@@ -57,7 +57,7 @@ exports.getList = async (courseId) => {
         where: {courseId: courseId},
         include: [{
             model: StudentRecord,
-            attributes: ['point', 'gradeId', 'studentId'],
+            attributes: ['point', 'gradeId', 'studentId']
         }],
         attributes: ['id', 'fullName'],
         raw: true,
