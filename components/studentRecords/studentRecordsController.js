@@ -1,38 +1,76 @@
 const StudentRecordsService = require('./studentRecordsService');
+const usersService = require('../users/usersService');
 const GradesService = require('../gradeStructure/gradeStructureService');
+const jwtDecode = require('jwt-decode');
+const Permission = require('../auth/rolePermission');
 
 exports.index = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
     const courseId = req.params.id;
+    const gradesList = await GradesService.findAll(courseId);
+    const numGrade = gradesList.length;
+    let data = [];
     try {
-        const numGrade = await GradesService.countGradeInCourse(courseId);
-        const gradesList = await GradesService.findAll(courseId);
-        const data = await StudentRecordsService.getList(courseId);
-        console.log(data);
-/*
-        let res = [];
-        gradesList.forEach( grade => {
-            let row = {
-                studentId
-            }
-        })
-*/
-        let resArr = [];
-        for(let i = 0; i < data.length; i = i + numGrade) {
-            resArr.push({
-                id: i / numGrade,
-                studentId: data[i].id,
-                fullName: data[i].fullName,
+        const role = await Permission.getRole(parsedToken.user.id, courseId);
+        if (role != 'teacher' && role != 'owner' && role != 'student') {
+            res.status(500).send({
+                message: 'Forbbiden'
             });
-            let pointList = [];
-            let total = 0;
-            for(let j = 0; j < numGrade; j++) {
-                pointList.push(data[i + j]["StudentRecords.point"]);
-                resArr[i / numGrade][`grade${j}`] = pointList[j];
-                total += pointList[j];
-            }
-            resArr[i / numGrade]['total'] = total;
         }
-        res.send(resArr);
+        else if (role != 'teacher' && role != 'owner') {
+            const student = await usersService.findOne(parsedToken.user.id);
+            data = await StudentRecordsService.getStudentGrade(student.studentID, courseId);
+            let resArr = [];
+            for(let i = 0; i < data.length; i = i + numGrade) {
+                resArr.push({
+                    id: i / numGrade,
+                    studentId: data[i].id,
+                    fullName: data[i].fullName,
+                });
+                let pointList = [];
+                let total = 0;
+                for(let j = 0; j < numGrade; j++) {
+                    try {
+                        pointList.push(data[i + j]["StudentRecords.point"]);
+                        resArr[i / numGrade][`grade${j}`] = pointList[j];
+                        total += pointList[j];
+                    }
+                    catch {
+                        resArr[i / numGrade][`grade${j}`] = null;
+                    }
+                }
+                resArr[i / numGrade]['total'] = total;
+            }
+            res.send(resArr);
+        } 
+        else {
+            data = await StudentRecordsService.getList(courseId);
+            let resArr = [];
+            for(let i = 0; i < data.length; i = i + numGrade) {
+                resArr.push({
+                    id: i / numGrade,
+                    studentId: data[i].id,
+                    fullName: data[i].fullName,
+                });
+                let pointList = [];
+                let total = 0;
+                for(let j = 0; j < numGrade; j++) {
+                    try {
+                        pointList.push(data[i + j]["StudentRecords.point"]);
+                        resArr[i / numGrade][`grade${j}`] = pointList[j];
+                        total += pointList[j];
+                    }
+                    catch {
+                        resArr[i / numGrade][`grade${j}`] = null;
+                    }
+                }
+                resArr[i / numGrade]['total'] = total;
+            }
+            res.send(resArr);
+        }
+        console.log(data);
+        
     } catch (err) {
         console.log(err);
         res.status(500).send({
@@ -87,11 +125,11 @@ exports.uploadFullGrade = async (req, res) => {
         const studentList = req.body.data;
         const courseId = req.params.id;
         //await StudentRecordsService.resetGradeList(courseId);
+        console.log(studentList);
         await studentList.forEach(async (student) => {
             const newStudent = {
                 id: student.studentId,
-                fullName: student.fullName,
-                courseId,
+                courseId
             }   
             await StudentRecordsService.updateOrInsertStudent(newStudent);
             await student.gradesPoint.forEach(async (grade) => {
@@ -101,45 +139,13 @@ exports.uploadFullGrade = async (req, res) => {
                     studentId: student.studentId,
                     point: grade.point
                 };
+                const record = await StudentRecordsService.findIdStudentRecord(studentRecord);
+                if (record) {
+                    studentRecord.id = record.id;
+                }
                 await StudentRecordsService.updateOrInsertStudentRecord(studentRecord);
             })
         });
-
-        
-
-        /*const students = data.map(item => {
-            return {
-                id: item.studentId,
-                fullName: item.fullName,
-                courseId: req.params.id                
-            }
-        });
-
-        let studentRecords = [];
-        Object.keys(data).forEach(studentKey => {
-            let newStudent = {
-                studentId: data[studentKey].studentId,
-                courseId: req.params.id
-            }
-
-            const newRows = data[studentKey].gradesPoint.map(grade => {
-                return {
-                    studentId: newStudent.studentId,
-                    courseId: newStudent.courseId,
-                    gradeId: grade.gradeId,
-                    point: grade.point
-                }
-            });
-
-            studentRecords = studentRecords.concat(newRows);
-        });
-
-        console.log(studentRecords);
-
-        await StudentRecordsService.resetStudentList(req.params.id);
-        await StudentRecordsService.insertStudentList(students);
-        await StudentRecordsService.resetGradeList(req.params.id);
-        await StudentRecordsService.insertGradeList(studentRecords);*/
 
         res.status(200).send({
             message:
