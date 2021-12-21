@@ -204,3 +204,23 @@ exports.findUpdatedNewData = async (req, res) => {
         });
     }
 };
+
+exports.findOneOtherUser = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+
+    try {
+        const data = await usersService.findOne(req.params.id);
+        if (data) {
+            res.send(data);
+        } else {
+            res.status(404).send({
+                message: 'User not found'
+            });
+        }
+    } catch (err) {
+        res.status(500).send({
+            message: err.message || "Some error occurred while finding the user."
+        });
+    }
+};

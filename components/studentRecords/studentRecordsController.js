@@ -1,6 +1,7 @@
 const StudentRecordsService = require('./studentRecordsService');
 const usersService = require('../users/usersService');
 const GradesService = require('../gradeStructure/gradeStructureService');
+const UserService = require('../users/usersService');
 const jwtDecode = require('jwt-decode');
 const Permission = require('../auth/rolePermission');
 
@@ -46,12 +47,17 @@ exports.index = async (req, res) => {
         } 
         else {
             data = await StudentRecordsService.getList(courseId);
+            console.log(data);
             let resArr = [];
             for(let i = 0; i < data.length; i = i + numGrade) {
+                let userInfo = await UserService.findOneByStudentId(data[i].id);
                 resArr.push({
                     id: i / numGrade,
-                    studentId: data[i].id,
                     fullName: data[i].fullName,
+                    studentId: {
+                        value: data[i].id,
+                        userId: userInfo ? userInfo.id : null,
+                    },
                 });
                 let pointList = [];
                 let total = 0;
@@ -67,9 +73,9 @@ exports.index = async (req, res) => {
                 }
                 resArr[i / numGrade]['total'] = total;
             }
+
             res.send(resArr);
         }
-        console.log(data);
         
     } catch (err) {
         console.log(err);
@@ -168,7 +174,7 @@ exports.updateOneRow = async (req, res) => {
         await gradesList.forEach(async (grade, index) => {
             let saveRow = {
                 studentId: student.studentId,
-                point: student[`grade${index}`],
+                point: student[`grade${index}`] === "" ? null : student[`grade${index}`],
                 courseId,
                 gradeId: grade.id,
             }

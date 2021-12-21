@@ -58,20 +58,6 @@ exports.getList = async (courseId) => {
         where: {courseId: courseId},
         include: [{
             model: StudentRecord,
-            attributes: ['point', 'gradeId', 'studentId']
-        }],
-        attributes: ['id', 'fullName'],
-        raw: true,
-
-    });
-}
-
-exports.getStudentGrade = async (studentId, courseId) => {
-    return OfficialStudent.findAll({
-        where: {courseId: courseId},
-        include: [{
-            model: StudentRecord,
-            where: {publish: true, studentId: studentId},
             attributes: ['point', 'gradeId', 'studentId'],
             include: [{
                 model: GradeStructure,
@@ -84,6 +70,20 @@ exports.getStudentGrade = async (studentId, courseId) => {
             ["StudentRecords", "GradeStructure", 'index', 'ASC'],
         ],
         raw: true,
+    });
+}
+
+exports.getStudentGrade = async (studentId, courseId) => {
+    return OfficialStudent.findAll({
+        where: {courseId: courseId},
+        include: [{
+            model: StudentRecord,
+            where: {publish: true, studentId: studentId},
+            attributes: ['point', 'gradeId', 'studentId'],
+        }],
+        attributes: ['id', 'fullName'],
+        raw: true,
+
     });
 }
 

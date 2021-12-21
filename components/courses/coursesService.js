@@ -184,7 +184,7 @@ exports.findAllStudents = (courseId) => {
         },
         include: [{
             model: User,
-            attributes: ['id', 'firstName', 'lastName', 'email'],
+            attributes: ['id', 'firstName', 'lastName', 'email', 'studentID'],
             as: 'students'
         }],
         attributes: ['id']

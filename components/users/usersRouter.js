@@ -5,6 +5,8 @@ const usersController = require('./usersController');
 
 router.get('/', passport.authorize('jwt'), usersController.findOne);
 
+router.get('/:id', passport.authorize('jwt'), usersController.findOneOtherUser);
+
 router.get('/find-user/:id', usersController.findUserInCourse);
 
 router.delete('/', passport.authorize('jwt'), usersController.delete);
