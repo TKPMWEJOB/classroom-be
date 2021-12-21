@@ -1,5 +1,6 @@
 "use strict";
 const GradesService = require('./gradeStructureService');
+const StudentRecordsService = require('../studentRecords/studentRecordsService');
 const jwtDecode = require('jwt-decode');
 const Permission = require('../auth/rolePermission');
 
@@ -49,8 +50,20 @@ exports.create = async (req, res) => {
     }
 
     try {
-        await GradesService.create(newGrade);
+        const savedGrade = await GradesService.create(newGrade);
         const gradeStructure = await GradesService.findAll(req.params.id);
+        const students = await StudentRecordsService.getStudentList(req.params.id);
+        console.log(students);
+        await students.forEach(async (student) => {
+            let studentRecord = { 
+                courseId: req.params.id,
+                gradeId: savedGrade.id,
+                studentId: student.id,
+            };
+
+            await StudentRecordsService.updateOrInsertStudentRecord(studentRecord);
+        });
+
         res.send(gradeStructure);
 
     } catch (err) {

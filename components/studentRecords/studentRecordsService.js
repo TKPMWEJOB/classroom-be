@@ -1,5 +1,6 @@
 const OfficialStudent = require('./studentRecordsModel').OfficialStudent;
 const StudentRecord = require('./studentRecordsModel').StudentRecord;
+const GradeStructure = require('../gradeStructure/gradeStructureModel');
 
 exports.insertStudentList = async (studentlist) => {
     return OfficialStudent.bulkCreate(studentlist);
@@ -58,10 +59,17 @@ exports.getList = async (courseId) => {
         include: [{
             model: StudentRecord,
             attributes: ['point', 'gradeId', 'studentId'],
+            include: [{
+                model: GradeStructure,
+                attributes: ['index'],
+            }],
         }],
         attributes: ['id', 'fullName'],
+        order: [
+            ["id", "ASC"],
+            ["StudentRecords", "GradeStructure", 'index', 'ASC'],
+        ],
         raw: true,
-
     });
 }
 
@@ -75,5 +83,11 @@ exports.publishStudentRecord = async (courseId, student) => {
             studentId: student.studentId,
             gradeId: student.gradeId
         }
+    });
+}
+
+exports.getStudentList = async (courseId) => {
+    return OfficialStudent.findAll({
+        where: {courseId: courseId},
     });
 }
