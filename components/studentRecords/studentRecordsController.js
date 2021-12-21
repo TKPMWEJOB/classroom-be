@@ -182,3 +182,22 @@ exports.updateOneRow = async (req, res) => {
         });
     }
 };
+
+exports.publishGrade = async (req, res) => {
+    try {
+        const student = req.body.data;
+        const courseId = req.params.id;
+        
+        await StudentRecordsService.publishStudentRecord(courseId, student);
+
+        res.status(200).send({
+            message:
+                "Imported successfully",
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            message: "Could not import data",
+        });
+    }
+};

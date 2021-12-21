@@ -4,6 +4,10 @@ const sequelize = require('../dal/db');
 exports.StudentRecord = sequelize.define('StudentRecords', {
     point: {
         type: Sequelize.INTEGER
+    },
+    publish: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
     }
 })
 
