@@ -54,10 +54,8 @@ exports.index = async (req, res) => {
                 resArr.push({
                     id: i / numGrade,
                     fullName: data[i].fullName,
-                    studentId: {
-                        value: data[i].id,
-                        userId: userInfo ? userInfo.id : null,
-                    },
+                    studentId: data[i].id,
+                    userId: userInfo ? userInfo.id : null,
                 });
                 let pointList = [];
                 let total = 0;

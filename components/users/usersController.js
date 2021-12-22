@@ -224,3 +224,15 @@ exports.findOneOtherUser = async (req, res) => {
         });
     }
 };
+
+exports.findUserWithStudentId = async (req, res) => {
+    const token = req.cookies.token;
+    try {
+        const data = await usersService.findOneByStudentId(req.params.studentId);
+        res.send(data);
+    } catch (err) {
+        res.status(500).send({
+            message: err.message || "Some error occurred while finding the user."
+        });
+    }
+};
