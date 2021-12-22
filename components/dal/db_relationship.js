@@ -81,6 +81,7 @@ function applyExtraSetup() {
     Course.hasMany(StudentRecord, {
         foreignKey: {
             name: 'courseId',
+            unique: 'recordIndexes',
             allowNull: false
         }
     });
@@ -88,6 +89,7 @@ function applyExtraSetup() {
     StudentRecord.belongsTo(Course, {
         foreignKey: {
             name: 'courseId',
+            unique: 'recordIndexes',
             allowNull: false
         },
         onDelete: 'cascade',
@@ -97,6 +99,7 @@ function applyExtraSetup() {
     GradeCategory.hasMany(StudentRecord, {
         foreignKey: {
             name: 'gradeId',
+            unique: 'recordIndexes',
             allowNull: false
         }
     });
@@ -104,6 +107,7 @@ function applyExtraSetup() {
     StudentRecord.belongsTo(GradeCategory, {
         foreignKey: {
             name: 'gradeId',
+            unique: 'recordIndexes',
             allowNull: false
         },
         onDelete: 'cascade',
@@ -113,6 +117,7 @@ function applyExtraSetup() {
     OfficialStudent.hasMany(StudentRecord, {
         foreignKey: {
             name: 'studentId',
+            unique: 'recordIndexes',
             allowNull: false
         }
     });
@@ -120,6 +125,7 @@ function applyExtraSetup() {
     StudentRecord.belongsTo(OfficialStudent, {
         foreignKey: {
             name: 'studentId',
+            unique: 'recordIndexes',
             allowNull: false
         },
         onDelete: 'cascade',
