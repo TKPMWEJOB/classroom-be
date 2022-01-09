@@ -11,6 +11,10 @@ const User = sequelize.define('Users', {
         type: Sequelize.STRING(50),
         allowNull: false
     },
+    username: {
+        type: Sequelize.STRING(50),
+        allowNull: false
+    },
     password: {
         type: Sequelize.STRING(50),
         allowNull: true
@@ -46,7 +50,29 @@ const User = sequelize.define('Users', {
     gender: {
         type: Sequelize.STRING(10),
         allowNull: true
-    }
+    },
+    isActivated: {
+        type: Sequelize.BOOLEAN(),
+        allowNull: false,
+        defaultValue: false,
+    },
+    activateToken: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+    },
+    resetPasswordToken: {
+        type: Sequelize.STRING(100),
+        allowNull: true,
+    },
+    resetPasswordTimeout: {
+        type: Sequelize.DATE(),
+        allowNull: true,
+    },
+    isLocked: {
+        type: Sequelize.BOOLEAN(),
+        allowNull: false,
+        defaultValue: false,
+    },
 })
 
 module.exports = User;

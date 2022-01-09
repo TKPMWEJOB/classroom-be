@@ -60,5 +60,17 @@ exports.findOneByStudentId = (studentId) => {
 }
 
 exports.findOneByEmail = (email) => {
-    return User.findOne({where: {email: email}});
+    return User.findOne({where: {email}});
+}
+
+exports.findOneByUsername = (username) => {
+    return User.findOne({where: {username}});
+}
+
+exports.findOneByActivateToken = (token) => {
+    return User.findOne({where: {activateToken: token}});
+}
+
+exports.findOneByResetToken = (token) => {
+    return User.findOne({where: {resetPasswordToken: token}});
 }
