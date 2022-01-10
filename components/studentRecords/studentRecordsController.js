@@ -23,7 +23,7 @@ exports.index = async (req, res) => {
             const student = await usersService.findOne(parsedToken.user.id);
             data = await StudentRecordsService.getStudentGrade(student.studentID, courseId);
             let resArr = [];
-            for(let i = 0; i < data.length; i = i + numGrade) {
+            for (let i = 0; i < data.length; i = i + numGrade) {
                 resArr.push({
                     id: i / numGrade,
                     studentId: data[i].id,
@@ -31,7 +31,7 @@ exports.index = async (req, res) => {
                 });
                 let pointList = [];
                 let total = 0;
-                for(let j = 0; j < numGrade; j++) {
+                for (let j = 0; j < numGrade; j++) {
                     try {
                         pointList.push(data[i + j]["StudentRecords.point"]);
                         resArr[i / numGrade][`grade${j}`] = pointList[j];
@@ -44,12 +44,12 @@ exports.index = async (req, res) => {
                 resArr[i / numGrade]['total'] = total;
             }
             res.send(resArr);
-        } 
+        }
         else {
             data = await StudentRecordsService.getList(courseId);
             console.log(data);
             let resArr = [];
-            for(let i = 0; i < data.length; i = i + numGrade) {
+            for (let i = 0; i < data.length; i = i + numGrade) {
                 let userInfo = await UserService.findOneByStudentId(data[i].id);
                 resArr.push({
                     id: i / numGrade,
@@ -59,7 +59,7 @@ exports.index = async (req, res) => {
                 });
                 let pointList = [];
                 let total = 0;
-                for(let j = 0; j < numGrade; j++) {
+                for (let j = 0; j < numGrade; j++) {
                     try {
                         pointList.push(data[i + j]["StudentRecords.point"]);
                         resArr[i / numGrade][`grade${j}`] = pointList[j];
@@ -74,7 +74,7 @@ exports.index = async (req, res) => {
 
             res.send(resArr);
         }
-        
+
     } catch (err) {
         console.log(err);
         res.status(500).send({
@@ -90,19 +90,19 @@ exports.uploadStudentList = async (req, res) => {
         const courseId = req.params.id;
         const studentList = req.body.data;
         const gradesList = await GradesService.findAll(courseId);
-        const students = studentList.map(data =>{
+        const students = studentList.map(data => {
             return {
                 id: data.studentId,
                 fullName: data.fullName,
                 courseId,
             }
         });
-        await students.forEach(async (student) => {
+        await Promise.all(students.map(async (student) => {
             console.log(student);
             await StudentRecordsService.updateOrInsertStudent(student);
 
             await gradesList.forEach(async (grade) => {
-                let studentRecord = { 
+                let studentRecord = {
                     courseId,
                     gradeId: grade.id,
                     studentId: student.id,
@@ -110,7 +110,7 @@ exports.uploadStudentList = async (req, res) => {
 
                 await StudentRecordsService.updateOrInsertStudentRecord(studentRecord);
             })
-        });
+        }));
 
         res.status(200).send({
             message:
@@ -134,20 +134,22 @@ exports.uploadFullGrade = async (req, res) => {
             const newStudent = {
                 id: student.studentId,
                 courseId
-            }   
+            }
             await StudentRecordsService.updateOrInsertStudent(newStudent);
             await student.gradesPoint.forEach(async (grade) => {
-                let studentRecord = { 
-                    courseId,
-                    gradeId: grade.gradeId,
-                    studentId: student.studentId,
-                    point: grade.point
-                };
-                const record = await StudentRecordsService.findIdStudentRecord(studentRecord);
-                if (record) {
-                    studentRecord.id = record.id;
+                if (grade != null) {
+                    let studentRecord = {
+                        courseId,
+                        gradeId: grade.gradeId,
+                        studentId: student.studentId,
+                        point: grade.point
+                    };
+                    const record = await StudentRecordsService.findIdStudentRecord(studentRecord);
+                    if (record) {
+                        studentRecord.id = record.id;
+                    }
+                    await StudentRecordsService.updateOrInsertStudentRecord(studentRecord);
                 }
-                await StudentRecordsService.updateOrInsertStudentRecord(studentRecord);
             })
         }));
 
@@ -168,7 +170,7 @@ exports.updateOneRow = async (req, res) => {
         const student = req.body.data;
         const courseId = req.params.id;
         const gradesList = await GradesService.findAll(courseId);
-        
+
         await gradesList.forEach(async (grade, index) => {
             let saveRow = {
                 studentId: student.studentId,
@@ -180,7 +182,7 @@ exports.updateOneRow = async (req, res) => {
             saveRow.id = record.id;
             await StudentRecordsService.updateOrInsertStudentRecord(saveRow);
         });
-        
+
         res.status(200).send({
             message:
                 "Imported successfully",
@@ -197,7 +199,7 @@ exports.publishGrade = async (req, res) => {
     try {
         const student = req.body.data;
         const courseId = req.params.id;
-        
+
         await StudentRecordsService.publishStudentRecord(courseId, student);
 
         res.status(200).send({
