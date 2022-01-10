@@ -17,8 +17,8 @@ exports.create = (data) => {
     return Notification.create(data);
 }
 
-exports.updateOne = (data) => {
-    return Notification.update( data, { where: { id: data.id } });
+exports.updateOne = (data, id) => {
+    return Notification.update( data, { where: { id: id } });
 }
 
 exports.delete = (id) => {

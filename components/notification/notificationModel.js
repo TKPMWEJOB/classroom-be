@@ -10,10 +10,10 @@ const Notification = sequelize.define('Notification', {
     title: {
         type: Sequelize.STRING(300)
     },
-    Content: {
+    content: {
         type: Sequelize.TEXT
     },
-    Status: {
+    status: {
         type: Sequelize.STRING(20)
     }
 })
