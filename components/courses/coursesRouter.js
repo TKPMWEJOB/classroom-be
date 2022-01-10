@@ -10,6 +10,8 @@ router.post('/', passport.authorize('jwt'), coursesController.create);
 
 router.put('/invite-member', passport.authorize('jwt'), coursesController.inviteMember);
 
+router.put('/invite-teacher', passport.authorize('jwt'), coursesController.inviteTeacher);
+
 router.put('/invitation-accepted', passport.authorize('jwt'), coursesController.invitationHandle);
 
 router.delete('/:id', passport.authorize('jwt'), coursesController.delete);

@@ -5,6 +5,9 @@ const jwtDecode = require('jwt-decode');
 const referralCodes = require('referral-codes');
 const nodemailer = require('nodemailer');
 const Permission = require('../auth/rolePermission');
+const { Course } = require('./coursesModel');
+
+const inviteTeacherLimitTime = 60 * 60; // 1 hour
 
 exports.index = async (req, res) => {
     const token = req.cookies.token;
@@ -173,7 +176,7 @@ exports.findOne = async (req, res) => {
 };
 
 exports.inviteMember = async (req, res) => {
-    const role = req.body.role;
+    //const role = req.body.role;
     const invitationLink = req.body.invitationLink;
     const courseId = req.body.courseId;
     const emailReceiver = req.body.emailReceiver;
@@ -192,30 +195,47 @@ exports.inviteMember = async (req, res) => {
     });
 
     let isAcceptSendMail = false;
-    let isInviteTeacherError = false;
+    //let isInviteTeacherError = false;
 
     try {
-        console.log('access');
+        //console.log('access');
         const existingUser = await UsersService.findOneByEmail(emailReceiver);
-        console.log(existingUser);
+        //console.log(existingUser);
         if (existingUser !== null) {
             const userId = existingUser.id;
             const student = await CoursesService.findPendingStudent(courseId, userId);
             const teacher = await CoursesService.findPendingTeacher(courseId, userId);
-            console.log(student);
-            console.log(teacher);
-            if (student !== null || teacher !== null) {
-                if (student !== null) {
-                    if (student.confirmed && role === 'student') {
-                        isAcceptSendMail = false;
+            //console.log(student);
+            //console.log(teacher);
+
+            if (teacher !== null) {
+                if (teacher.confirmed) {
+                    res.status(404).send({
+                        msg: 'User is teacher in your class'
+                    });
+                }
+                else {
+                    if (student !== null) {
+                        if (student.confirmed) {
+                            res.status(404).send({
+                                msg: 'User has already been in your class'
+                            });
+                        }
+                        else {
+                            isAcceptSendMail = true;
+                        }
                     }
                     else {
                         isAcceptSendMail = true;
                     }
                 }
-                else if (teacher !== null) {
-                    if (teacher.confirmed && role === 'teacher') {
-                        isAcceptSendMail = false;
+            }
+            else {
+                if (student !== null) {
+                    if (student.confirmed) {
+                        res.status(404).send({
+                            msg: 'User has already been in your class'
+                        });
                     }
                     else {
                         isAcceptSendMail = true;
@@ -225,44 +245,34 @@ exports.inviteMember = async (req, res) => {
                     isAcceptSendMail = true;
                 }
             }
-            else {
-                if (role === 'student') {
-                    await CoursesService.createStudent(courseId, userId);
-                    isAcceptSendMail = true;
-                }
-                else if (role === 'teacher') {
-                    await CoursesService.createTeacher(courseId, userId);
-                    isAcceptSendMail = true;
-                }
-            }
-
-        }
-        else if (existingUser === null && role == 'teacher') {
-            isAcceptSendMail = false;
-            isInviteTeacherError = true;
         }
         else {
             isAcceptSendMail = true;
         }
+
     } catch (err) {
         console.log(err);
     };
 
     if (isAcceptSendMail) {
         try {
+            const course = await CoursesService.findOne(courseId);
+            
+            const Link = invitationLink.concat(course.invitationId);
+
             let info = await transporter.sendMail({
                 from: `${sender} <${emailSender}>`,
                 to: emailReceiver,
                 subject: "New invitation to classroom",
                 text: 'You recieved message from ' + sender,
-                html: "Hello,<br> You have an invitation to " + sender + "'s classroom<br><br> Please Click on the link to accept your invitation.<br><a href=" + invitationLink + ">" + invitationLink + "</a>"
+                html: "Hello,<br> You have an invitation to " + sender + "'s classroom<br><br> Please Click on the link to accept your invitation.<br><a href=" + Link + ">" + Link + "</a>"
             });
 
             if (info !== null) {
                 res.send({ msg: 'Invitation sent!' });
             } else {
-                res.status(404).send({
-                    msg: 'Could not send invitation'
+                res.status(500).send({
+                    msg: "Some error occurred while sending invitation."
                 });
             }
         } catch (err) {
@@ -271,17 +281,125 @@ exports.inviteMember = async (req, res) => {
             });
         }
     }
-    else if (isInviteTeacherError) {
-        res.status(500).send({
-            msg: `Cannot invite teacher outside system`
-        });
-    }
-    else {
-        res.status(500).send({
-            msg: `${role} has already in class`
-        });
-    }
+};
 
+exports.inviteTeacher = async (req, res) => {
+    //const role = req.body.role;
+    const invitationLink = req.body.invitationLink;
+    const courseId = req.body.courseId;
+    const emailReceiver = req.body.emailReceiver;
+    const emailSender = req.body.emailSender;
+    const sender = req.body.sender;
+
+    //let testAccount = await nodemailer.createTestAccount();
+
+
+    let transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.CLASS_SERVICE_GMAIL,
+            pass: process.env.CLASS_SERVICE_PASS
+        }
+    });
+
+    let isAcceptSendMail = false;
+    //let isInviteTeacherError = false;
+    let existingUser = null;
+    try {
+        existingUser = await UsersService.findOneByEmailV2(emailReceiver);
+        if (existingUser !== null) {
+            const userId = existingUser.id;
+            //const student = await CoursesService.findPendingStudent(courseId, userId);
+            const teacher = await CoursesService.findPendingTeacher(courseId, userId);
+            //console.log(student);
+            //console.log(teacher);
+            if (teacher !== null) {
+                if (teacher.confirmed) {
+                    res.status(404).send({
+                        msg: 'Teacher has already been in your class'
+                    });
+                }
+                else {
+                    isAcceptSendMail = true;
+                }
+            }
+            else {
+                isAcceptSendMail = true;
+            }
+
+        }
+        else {
+            isAcceptSendMail = true;
+        }
+
+    } catch (err) {
+        console.log(err);
+    };
+
+    if (isAcceptSendMail) {
+        try {
+            const code = referralCodes.generate({
+                length: 12
+            });
+            let invitationCode = code[0];
+
+            if (existingUser) {
+                const invitation = await CoursesService.findOneInvitation(courseId, emailReceiver);
+                if (invitation) {
+                    let diff = (Date.now() - invitation.teacherInvitationTimeout) / 1000;
+                    if (diff <= inviteTeacherLimitTime) {
+                        invitationCode = invitation.teacherInvitationCode;
+                    }
+                    let invitationInfo = {
+                        teacherInvitationCode: invitationCode,
+                        teacherInvitationTimeout: Date.now()
+                    }
+
+                    await CoursesService.updateTeacherInvitation(invitationInfo, invitation.id);
+                }
+                else {
+                    let invitationInfo = {
+                        teacherInvitationCode: invitationCode,
+                        teacherInvitationTimeout: Date.now(),
+                        email: emailReceiver,
+                        courseId: courseId
+                    }
+                    await CoursesService.addTeacherInvitation(invitationInfo);
+                }
+            }
+            else {
+                let invitationInfo = {
+                    teacherInvitationCode: invitationCode,
+                    teacherInvitationTimeout: Date.now(),
+                    email: emailReceiver,
+                    courseId: courseId
+                }
+                await CoursesService.addTeacherInvitation(invitationInfo);
+            }
+
+            const Link = invitationLink.concat(invitationCode);
+
+            let info = await transporter.sendMail({
+                from: `${sender} <${emailSender}>`,
+                to: emailReceiver,
+                subject: "New invitation to classroom",
+                text: 'You recieved message from ' + sender,
+                html: "Hello,<br> You have an invitation to " + sender + "'s classroom with teacher role<br><br> Please Click on the link to accept your invitation.<br><a href=" + Link + ">" + Link + "</a>"
+            });
+
+            if (info !== null) {
+                res.send({ msg: 'Invitation sent!' });
+            } else {
+                res.status(404).send({
+                    msg: 'Teacher has already been in your class'
+                });
+            }
+        } catch (err) {
+            res.status(500).send({
+                msg: "Some error occurred while sending invitation."
+            });
+        }
+    }
 };
 
 exports.invitationHandle = async (req, res) => {
@@ -290,47 +408,122 @@ exports.invitationHandle = async (req, res) => {
             msg: "Content can not be empty!"
         });
     }
+    
+    const invitationId = req.body.invitationId;
 
-    try {
-        const course = await CoursesService.findOne(req.body.invitationId);
-        const student = await CoursesService.findPendingStudent(course.id, req.body.userId);
-        const teacher = await CoursesService.findPendingTeacher(course.id, req.body.userId);
-        let isSuccess = null;
-
-        console.log(['student', student]);
-        console.log(['teacher', teacher]);
-
-        if (student !== null && teacher !== null) {
-            if (!teacher.confirmed) {
-                await CoursesService.updateStudentEject(course.id, student.studentId);
-                isSuccess = await CoursesService.updateTeacherJoin(course.id, teacher.teacherId);
+    if (invitationId.length === 8) {
+        try {
+            const course = await CoursesService.findOne(req.body.invitationId);
+            const student = await CoursesService.findPendingStudent(course.id, req.body.userId);
+            const teacher = await CoursesService.findPendingTeacher(course.id, req.body.userId);
+            let isSuccess = null;
+    
+            if (student !== null && teacher !== null) {
+                if (!teacher.confirmed) {
+                    isSuccess = await CoursesService.updateStudentJoin(course.id, student.studentId);
+                }
+                isSuccess = true;
             }
-        }
-        else if (student === null && teacher === null) {
-            isSuccess = await CoursesService.addStudent(course.id, req.body.userId);
-        }
-        else if (student === null && teacher !== null) {
-            isSuccess = await CoursesService.updateTeacherJoin(course.id, teacher.teacherId);
-        }
-        else {
-            isSuccess = await CoursesService.updateStudentJoin(course.id, student.studentId);
-        }
-
-        if (isSuccess !== null) {
-            res.send({
-                courseId: course.id,
-                msg: "You are joined!"
+            else if (student === null && teacher === null) {
+                isSuccess = await CoursesService.addStudent(course.id, req.body.userId);
+            }
+            else if (student === null && teacher !== null) {
+                if (!teacher.confirmed) {
+                    isSuccess = await CoursesService.addStudent(course.id, req.body.userId);
+                }
+                isSuccess = true;
+            }
+            else {
+                isSuccess = await CoursesService.updateStudentJoin(course.id, student.studentId);
+            }
+    
+            if (isSuccess !== null) {
+                res.send({
+                    courseId: course.id,
+                    msg: "You are joined!"
+                });
+            } else {
+                res.status(400).send({
+                    msg: "Some error occurred while adding student."
+                });
+            }
+        } catch (err) {
+            res.status(500).send({
+                msg: err.message || "Some error occurred while adding student."
             });
-        } else {
-            res.status(400).send({
-                msg: "Some error occurred while adding student."
+        }        
+    }
+    else if (invitationId.length === 12) {
+        try {
+            const invitationInfo = await CoursesService.findOneInvitationByCode(req.body.invitationId);
+            if (invitationInfo) {
+                const user = await UsersService.findOne(req.body.userId);
+                if (user.email === invitationInfo.email) {
+                    const teacher = await CoursesService.findPendingTeacher(invitationInfo.courseId, req.body.userId);
+                    let isSuccess = null;
+    
+                    if (teacher) {
+                        if (!teacher.confirmed) {
+                            let diff = (Date.now() - invitationInfo.teacherInvitationTimeout) / 1000;
+                            if (diff <= inviteTeacherLimitTime) {
+                                isSuccess = await CoursesService.updateTeacherJoin(invitationInfo.courseId, teacher.teacherId);
+                            }
+                        }
+                        else {
+                            isSuccess = true;
+                        }
+                    }
+                    else {
+                        let diff = (Date.now() - invitationInfo.teacherInvitationTimeout) / 1000;
+                        if (diff <= inviteTeacherLimitTime) {
+                            isSuccess = await CoursesService.addTeacher(invitationInfo.courseId, req.body.userId);
+                        }
+                    }
+    
+                    if (isSuccess !== null) {
+                        res.send({
+                            courseId: invitationInfo.courseId,
+                            msg: "You are joined!"
+                        });
+                    } else {
+                        res.status(400).send({
+                            msg: "Some error occurred while adding teacher."
+                        });
+                    }
+                }
+                else {
+                    res.status(400).send({
+                        msg: "You are not permit to join with role teacher."
+                    });
+                }
+            }
+            else {
+                res.status(400).send({
+                    msg: "Can't find link."
+                });
+            }   
+            
+        } catch (err) {
+            res.status(500).send({
+                msg: err.message || "Some error occurred while adding member."
             });
         }
-    } catch (err) {
+    }
+    else {
         res.status(500).send({
-            msg: err.message || "Some error occurred while adding student."
+            msg: err.message || "Invalid link."
         });
     }
+}
+
+exports.invitationTeacherHandle = async (req, res) => {
+    if (!req.body) {
+        res.status(400).send({
+            msg: "Content can not be empty!"
+        });
+    }
+
+    
 }
 
 exports.findAllPeople = async (req, res) => {

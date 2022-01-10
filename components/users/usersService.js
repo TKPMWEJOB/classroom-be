@@ -63,6 +63,10 @@ exports.findOneByEmail = (email) => {
     return User.findOne({where: {email}});
 }
 
+exports.findOneByEmailV2 = (email) => {
+    return User.findOne({where: {email: email}});
+}
+
 exports.findOneByUsername = (username) => {
     return User.findOne({where: {username}});
 }

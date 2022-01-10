@@ -72,7 +72,7 @@ const User = sequelize.define('Users', {
         type: Sequelize.BOOLEAN(),
         allowNull: false,
         defaultValue: false,
-    },
+    }
 })
 
 module.exports = User;

@@ -28,3 +28,12 @@ exports.Student = sequelize.define('Students', {
         type: Sequelize.BOOLEAN
     },
 })
+
+exports.TeacherInvitation = sequelize.define('TeacherInvitation', {
+    teacherInvitationCode: Sequelize.STRING(15),
+    teacherInvitationTimeout: Sequelize.DATE,
+    email: {
+        type: Sequelize.STRING(50),
+        allowNull: false
+    },
+})

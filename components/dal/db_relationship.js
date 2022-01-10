@@ -2,6 +2,7 @@ const User = require('../users/usersModel');
 const Course = require('../courses/coursesModel').Course;
 const Teacher = require('../courses/coursesModel').Teacher;
 const Student = require('../courses/coursesModel').Student;
+const TeacherInvitation = require('../courses/coursesModel').TeacherInvitation;
 const GradeCategory = require('../gradeStructure/gradeStructureModel');
 const StudentRecord = require('../studentRecords/studentRecordsModel').StudentRecord;
 const OfficialStudent = require('../studentRecords/studentRecordsModel').OfficialStudent;
@@ -59,6 +60,22 @@ function applyExtraSetup() {
             allowNull: false
         },
         as: 'students'
+    });
+
+    // teacher invitation relationship
+    Course.hasMany(TeacherInvitation, {
+        foreignKey: {
+            name: 'courseId',
+            allowNull: false
+        }
+    });
+
+    TeacherInvitation.belongsTo(Course, {
+        foreignKey: {
+            name: 'courseId',
+            allowNull: false
+        },
+        targetKey: 'id'
     });
 
     // grade relationship

@@ -2,6 +2,7 @@
 const Course = require('./coursesModel').Course;
 const Teacher = require('./coursesModel').Teacher;
 const Student = require('./coursesModel').Student;
+const TeacherInvitation = require('./coursesModel').TeacherInvitation;
 const User = require('../users/usersModel');
 const sequelize = require('../dal/db');
 const { Op } = require("sequelize");
@@ -60,6 +61,36 @@ exports.findOne = (id) => {
 exports.findOneByInvitationId = (id) => {
     return Course.findOne({ where: { invitationId: id } });
 }
+
+//////Teacher invitation
+exports.findOneInvitation = (courseId, email) => {
+    return TeacherInvitation.findOne({
+        where: {
+            courseId: courseId,
+            email: email
+        }
+    });
+}
+
+exports.findOneInvitationByCode = (code) => {
+    return TeacherInvitation.findOne({
+        where: {
+            teacherInvitationCode: code
+        }
+    });
+}
+
+exports.addTeacherInvitation = (data) => {
+    console.log(data);
+    return TeacherInvitation.create(data);
+}
+
+exports.updateTeacherInvitation = (data, id) => {
+    return TeacherInvitation.update(data, { where: { id: id } });
+}
+
+
+////////
 
 exports.createStudent = (courseId, studentId) => {
     return Student.create({
