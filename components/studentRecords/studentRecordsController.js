@@ -130,7 +130,7 @@ exports.uploadFullGrade = async (req, res) => {
         const courseId = req.params.id;
         //await StudentRecordsService.resetGradeList(courseId);
         console.log(studentList);
-        await studentList.forEach(async (student) => {
+        await Promise.all(studentList.map(async (student) => {
             const newStudent = {
                 id: student.studentId,
                 courseId
@@ -149,7 +149,7 @@ exports.uploadFullGrade = async (req, res) => {
                 }
                 await StudentRecordsService.updateOrInsertStudentRecord(studentRecord);
             })
-        });
+        }));
 
         res.status(200).send({
             message:
