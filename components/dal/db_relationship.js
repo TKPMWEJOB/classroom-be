@@ -1,4 +1,5 @@
 const User = require('../users/usersModel');
+const Notification = require('../notification/notificationModel');
 const Course = require('../courses/coursesModel').Course;
 const Teacher = require('../courses/coursesModel').Teacher;
 const Student = require('../courses/coursesModel').Student;
@@ -160,6 +161,30 @@ function applyExtraSetup() {
     OfficialStudent.belongsTo(Course, {
         foreignKey: {
             name: 'courseId',
+            allowNull: false
+        },
+        targetKey: 'id'
+    });
+
+    // notification relationship
+    User.hasMany(Notification, {
+        foreignKey: {
+            name: 'userId',
+            allowNull: false
+        }
+    });
+
+    Notification.belongsTo(User, {
+        foreignKey: {
+            name: 'userId',
+            allowNull: false
+        },
+        targetKey: 'id'
+    });
+
+    Notification.belongsTo(User, {
+        foreignKey: {
+            name: 'senderId',
             allowNull: false
         },
         targetKey: 'id'

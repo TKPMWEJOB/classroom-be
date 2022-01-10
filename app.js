@@ -12,6 +12,7 @@ const coursesRouter = require('./components/courses/coursesRouter');
 const authRouter = require('./components/auth/authRouter');
 const auth = require('./components/auth/passport/auth');
 const studentRecordsRouter = require('./components/studentRecords/studentRecordsRouter');
+const notificationRouter = require('./components/notification/notificationRouter');
 
 const sequelize = require('./components/dal/db');
 const { applyExtraSetup } = require('./components/dal/db_relationship');
@@ -35,6 +36,7 @@ auth(app);
 
 app.use('/', indexRouter);
 app.use('/user', usersRouter);
+app.use('/user', notificationRouter);
 app.use('/courses', coursesRouter);
 app.use('/courses', studentRecordsRouter);
 app.use('/auth', authRouter);
