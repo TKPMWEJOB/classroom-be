@@ -1,5 +1,8 @@
 "use strict";
 const notificationService = require('./notificationService');
+const studentRecordsService = require('../studentRecords/studentRecordsService');
+const coursesService = require('../courses/coursesService');
+const usersService = require('../users/usersService');
 const jwtDecode = require('jwt-decode');
 
 exports.index = async (req, res) => {
@@ -7,7 +10,9 @@ exports.index = async (req, res) => {
   const parsedToken = jwtDecode(token);
   const userId = parsedToken.user.id;
   try {
-    const data = await notificationService.findAll(userId);
+    const userInfor = await usersService.findOne(userId);
+    const data = await notificationService.findAll(userId, userInfor.studentID);
+    console.log(data);
     if (data) {
         res.send(data);
     } else {
@@ -53,14 +58,98 @@ exports.createOne = async (req, res) => {
   }
 };
 
-exports.updateStatus = async (req, res) => {
+exports.createOneGradeNotification = async (senderId, receiverId, courseId) => {
+  try {
+    // create notification
+    const course = await coursesService.findOne(courseId);
+    const sender = await usersService.findOne(senderId);
+
+    const notification = {
+        senderId: senderId,
+        receiverId: receiverId,
+        receiverRole: `student`,
+        title: `New publish grade in ${course.name}`,
+        content: `You receive a new published grade from ${sender.lastName} ${sender.firstName} in ${course.name}.`,
+        status: 'waiting'
+    }
+
+    const result = await notificationService.create(notification);
+    return result;
+  } 
+  catch (err) {
+    res.status(500).send({
+        message: err.message || "Some error occurred while sending notifications."
+    });
+  }
+};
+
+exports.createManyGradeNotification = async (senderId, gradeId, courseId) => {
+  try {
+    // create notification
+    const studentList = await studentRecordsService.findAllRecordByGradeId(courseId, gradeId);
+
+    await studentList.forEach(async (student) => {
+      if (student.point) {
+        await this.createOneGradeNotification(senderId, student.studentId, courseId);
+      }
+    });
+  } 
+  catch (err) {
+    res.status(500).send({
+        message: err.message || "Some error occurred while sending notifications."
+    });
+  }
+};
+
+exports.createOneStudentGradeNotification = async (senderId, receiverId, courseId) => {
+  try {
+    // create notification
+    const course = await coursesService.findOne(courseId);
+
+    const notification = {
+        senderId: senderId,
+        receiverId: receiverId,
+        receiverRole: `student`,
+        title: `New publish grades in ${course.name}`,
+        content: `Your result in ${course.name} have been published.`,
+        status: 'waiting'
+    }
+
+    const result = await notificationService.create(notification);
+    return result;
+  } 
+  catch (err) {
+    res.status(500).send({
+        message: err.message || "Some error occurred while sending notifications."
+    });
+  }
+};
+
+exports.createManyStudentGradeNotification = async (senderId, courseId) => {
+  try {
+    // create notification
+    const studentList = await studentRecordsService.findAllOfficialStudentInCourse(courseId);
+
+    await studentList.forEach(async (student) => {
+      await this.createOneStudentGradeNotification(senderId, student.id, courseId);
+    });
+  } 
+  catch (err) {
+    res.status(500).send({
+        message: err.message || "Some error occurred while sending notifications."
+    });
+  }
+};
+
+exports.updateViewedStatus = async (req, res) => {
   const newStatus = {
-    status: req.body.status
+    status: 'viewed'
   }
 
   try {
-    const result = await notificationService.updateOne(newStatus, req.params.id);
+    let result = await notificationService.updateOne(newStatus, req.body.data.notificationId);
     if (result) {
+        result = await this.index(req, res);
         res.send(result);
     } 
     else {
