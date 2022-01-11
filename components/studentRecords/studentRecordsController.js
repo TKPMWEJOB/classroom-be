@@ -238,7 +238,7 @@ exports.publishOneColumn = async (req, res) => {
         const gradeId = req.body.data.gradeId;
         const courseId = req.params.id;
 
-        await StudentRecordsService.publishOneStudent(courseId, gradeId);
+        await StudentRecordsService.publishOneGrade(courseId, gradeId);
 
         res.status(200).send({
             message:
