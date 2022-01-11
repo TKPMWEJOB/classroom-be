@@ -195,12 +195,68 @@ exports.updateOneRow = async (req, res) => {
     }
 };
 
-exports.publishGrade = async (req, res) => {
+exports.publishOneGrade = async (req, res) => {
     try {
         const student = req.body.data;
         const courseId = req.params.id;
 
-        await StudentRecordsService.publishStudentRecord(courseId, student);
+        await StudentRecordsService.publishOneRecord(courseId, student);
+
+        res.status(200).send({
+            message:
+                "Imported successfully",
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            message: "Could not import data",
+        });
+    }
+};
+
+exports.publishOneRow = async (req, res) => {
+    try {
+        const studentId = req.body.data.studentId;
+        const courseId = req.params.id;
+
+        await StudentRecordsService.publishOneStudent(courseId, studentId);
+
+        res.status(200).send({
+            message:
+                "Imported successfully",
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            message: "Could not import data",
+        });
+    }
+};
+
+exports.publishOneColumn = async (req, res) => {
+    try {
+        const gradeId = req.body.data.gradeId;
+        const courseId = req.params.id;
+
+        await StudentRecordsService.publishOneStudent(courseId, gradeId);
+
+        res.status(200).send({
+            message:
+                "Imported successfully",
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            message: "Could not import data",
+        });
+    }
+};
+
+exports.publishAllRecords = async (req, res) => {
+    try {
+        const courseId = req.params.id;
+
+        await StudentRecordsService.publishAllRecords(courseId);
 
         res.status(200).send({
             message:
