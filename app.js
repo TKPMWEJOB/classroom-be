@@ -36,7 +36,7 @@ auth(app);
 
 app.use('/', indexRouter);
 app.use('/user', usersRouter);
-app.use('/user', notificationRouter);
+app.use('/notification', notificationRouter);
 app.use('/courses', coursesRouter);
 app.use('/courses', studentRecordsRouter);
 app.use('/auth', authRouter);

@@ -2,6 +2,7 @@ const StudentRecordsService = require('./studentRecordsService');
 const usersService = require('../users/usersService');
 const GradesService = require('../gradeStructure/gradeStructureService');
 const UserService = require('../users/usersService');
+const NotificationsController = require('../notification/notificationController');
 const jwtDecode = require('jwt-decode');
 const Permission = require('../auth/rolePermission');
 
@@ -195,21 +196,103 @@ exports.updateOneRow = async (req, res) => {
     }
 };
 
-exports.publishGrade = async (req, res) => {
+
+//////////////////////Publish//////////////////////////
+
+exports.publishOneGrade = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+
     try {
-        const student = req.body.data;
+        const gradeInfor = req.body.data;
         const courseId = req.params.id;
 
-        await StudentRecordsService.publishStudentRecord(courseId, student);
+        // publish grade
+        await StudentRecordsService.publishOneRecord(courseId, gradeInfor);
+
+        // create notification
+        await NotificationsController.createOneGradeNotification(parsedToken.user.id, gradeInfor.studentId, courseId);
 
         res.status(200).send({
             message:
-                "Imported successfully",
+                "Publish successfully",
         });
     } catch (error) {
         console.log(error);
         res.status(500).send({
-            message: "Could not import data",
+            message: "Could not publish",
+        });
+    }
+};
+
+exports.publishOneRow = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+
+    try {
+        const studentId = req.body.data.studentId;
+        const courseId = req.params.id;
+
+        await StudentRecordsService.publishOneStudent(courseId, studentId);
+
+        // create notification
+        await NotificationsController.createOneStudentGradeNotification(parsedToken.user.id, studentId, courseId);
+
+        res.status(200).send({
+            message:
+                "Publish successfully",
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            message: "Could not publish",
+        });
+    }
+};
+
+exports.publishOneColumn = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+    try {
+        const gradeId = req.body.data.gradeId;
+        const courseId = req.params.id;
+
+        await StudentRecordsService.publishOneGrade(courseId, gradeId);
+
+        //create notification
+        await NotificationsController.createManyGradeNotification(parsedToken.user.id, gradeId, courseId);
+
+        res.status(200).send({
+            message:
+                "Publish successfully",
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            message: "Could not publish",
+        });
+    }
+};
+
+exports.publishAllRecords = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+    try {
+        const courseId = req.params.id;
+
+        await StudentRecordsService.publishAllRecords(courseId);
+
+        //Create notification
+        await NotificationsController.createManyStudentGradeNotification(parsedToken.user.id, courseId)
+
+        res.status(200).send({
+            message:
+                "Publish successfully",
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            message: "Could not publish",
         });
     }
 };

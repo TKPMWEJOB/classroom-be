@@ -1,11 +1,27 @@
 "use strict";
 const Notification = require('./notificationModel');
 const sequelize = require('../dal/db');
+const { Op } = require("sequelize");
 
-exports.findAll = (userId) => {
+exports.findAll = (userId, studentId) => {
+    console.log(userId);
+    console.log(studentId);
     return Notification.findAll({
         where: {
-            userId: userId
+            [Op.or]: [
+                {
+                    [Op.and]: [
+                        { receiverRole: 'student' },
+                        { receiverId: studentId}
+                    ]
+                },
+                {
+                    [Op.and]: [
+                        { receiverRole: 'teacher' },
+                        { receiverId: userId}
+                    ]
+                }
+            ]
         },
         order: [
             ['createdAt', 'DESC']
@@ -17,8 +33,8 @@ exports.create = (data) => {
     return Notification.create(data);
 }
 
-exports.updateOne = (data) => {
-    return Notification.update( data, { where: { id: data.id } });
+exports.updateOne = (data, id) => {
+    return Notification.update( data, { where: { id: id } });
 }
 
 exports.delete = (id) => {

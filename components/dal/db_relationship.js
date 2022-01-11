@@ -167,21 +167,6 @@ function applyExtraSetup() {
     });
 
     // notification relationship
-    User.hasMany(Notification, {
-        foreignKey: {
-            name: 'userId',
-            allowNull: false
-        }
-    });
-
-    Notification.belongsTo(User, {
-        foreignKey: {
-            name: 'userId',
-            allowNull: false
-        },
-        targetKey: 'id'
-    });
-
     Notification.belongsTo(User, {
         foreignKey: {
             name: 'senderId',

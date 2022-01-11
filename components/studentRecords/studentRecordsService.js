@@ -22,6 +22,23 @@ exports.findIdStudentRecord = async (record) => {
     })
 }
 
+exports.findAllRecordByGradeId = async (courseId, gradeId) => {
+    return StudentRecord.findAll({
+        where: {
+            courseId: courseId,
+            gradeId: gradeId
+        }
+    })
+}
+
+exports.findAllOfficialStudentInCourse = async (courseId) => {
+    return OfficialStudent.findAll({
+        where: {
+            courseId: courseId
+        }
+    })
+}
+
 exports.updateOrInsertStudentRecord = async (record) => {
     return StudentRecord.upsert(record, {
         where: {
@@ -86,15 +103,50 @@ exports.getStudentGrade = async (studentId, courseId) => {
     });
 }
 
-exports.publishStudentRecord = async (courseId, student) => {
+exports.publishOneRecord = async (courseId, gradeInfor) => {
     return StudentRecord.update(
         {
             publish: true
         }, {
         where: {
             courseId: courseId,
-            studentId: student.studentId,
-            gradeId: student.gradeId
+            studentId: gradeInfor.studentId,
+            gradeId: gradeInfor.gradeId
+        }
+    });
+}
+
+exports.publishOneStudent = async (courseId, studentId) => {
+    return StudentRecord.update(
+        {
+            publish: true
+        }, {
+        where: {
+            courseId: courseId,
+            studentId: studentId
+        }
+    });
+}
+
+exports.publishOneGrade = async (courseId, gradeId) => {
+    return StudentRecord.update(
+        {
+            publish: true
+        }, {
+        where: {
+            courseId: courseId,
+            gradeId: gradeId
+        }
+    });
+}
+
+exports.publishAllRecords = async (courseId) => {
+    return StudentRecord.update(
+        {
+            publish: true
+        }, {
+        where: {
+            courseId: courseId
         }
     });
 }

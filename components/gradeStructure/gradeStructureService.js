@@ -14,6 +14,15 @@ exports.findAll = (courseId) => {
     });
 }
 
+exports.findOneWithGradeId = (gradeId) => {
+    return GradeStructure.findOne({
+        where: {
+            id: gradeId
+        },
+        attributes: ['id', 'title', 'point', 'index']
+    });
+}
+
 exports.create = (newGrade) => {
     return GradeStructure.create(newGrade);
 }
@@ -23,14 +32,6 @@ exports.delete = (courseId, gradeStructureId) => {
 }
 
 exports.updateAll = async (courseId, gradeList) => {
-
-
-    /*const newGradeStructure = tempStructure.map(function(obj) { 
-        obj.index = index; 
-        index++;
-        return obj;
-    });*/
-
     const result = gradeList.map(async function (obj) {
         await GradeStructure.update({
             title: obj.title,
