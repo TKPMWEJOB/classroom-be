@@ -13,6 +13,8 @@ router.get('/logout', authController.logout);
 
 router.post('/google', authController.google);
 
+router.post('/facebook', authController.facebook);
+
 router.post('/email-resend', authController.emailResend);
 
 router.get('/activate/:token', authController.activate);

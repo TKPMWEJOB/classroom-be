@@ -8,6 +8,7 @@ const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const UsersService = require('../users/usersService');
+const { default: axios } = require('axios');
 
 const saltRounds = 10;
 const resetPasswordLimitTime = 60 * 15; // 15 minutes
@@ -173,9 +174,11 @@ exports.google = async (req, res, next) => {
         const duplicateUser = await UsersService.findOneByEmail(payload.email);
         let userInfo = {
             email: payload.email,
+            username: payload.email.split("@")[0],
             firstName: payload.given_name,
             lastName: payload.family_name,
             isActivated: true,
+            activateToken: "0",
         };
         if (duplicateUser === null) {
             userInfo = await UsersService.create(userInfo);            
@@ -183,25 +186,80 @@ exports.google = async (req, res, next) => {
             userInfo = duplicateUser;
         }
 
-        const jwtToken = jwt.sign({user: userInfo}, process.env.JWT_SECRET_KEY);
+        const body = {
+            id: userInfo.id,
+            email: userInfo.email,
+            firstName: userInfo.firstName,
+            lastName: userInfo.lastName,
+            username: userInfo.username,
+        }
+
+        const jwtToken = jwt.sign({user: body}, process.env.JWT_SECRET_KEY);
             let maxAge = 7 * 24 * 60 * 60 * 1000; //7 days 
             //res.json({body, token});
             res.status(200)
                 .cookie("token", jwtToken, {maxAge, httpOnly: true, sameSite: "none", secure: true})
                 .send(JSON.stringify({
-                    body: userInfo,
+                    body,
                     jwtToken,
                     msg: "Successfully logged in",
             }));
 
-        /*
-        const user = await db.user.upsert({ 
-            where: { email: email },
-            update: { name, picture },
-            create: { name, email, picture }
-        })
-        */
         console.log(payload);
+    } catch(err) {
+        console.log(err);
+        res.status(500).send({
+            msg: err.message || "Some error occurred while creating account."
+        });
+    }
+}; 
+
+exports.facebook = async (req, res, next) => {
+    try {
+        const { token }  = req.body;
+
+        const valRes = await axios.get(`https://graph.facebook.com/debug_token?input_token=${token}&access_token=${process.env.FACEBOOK_CLIENT_ID}|${process.env.FACEBOOK_CLIENT_SECRET}`);
+
+        if (valRes.data.data.is_valid)
+        {
+            const duplicateUser = await UsersService.findOneByEmail(req.body.email);
+            let userInfo = {
+                email: req.body.email,
+                username: req.body.email.split("@")[0],
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                isActivated: true,
+                activateToken: "0",
+            };
+            if (duplicateUser === null) {
+                userInfo = await UsersService.create(userInfo);            
+            } else {
+                userInfo = duplicateUser;
+            }
+
+            const body = {
+                id: userInfo.id,
+                email: userInfo.email,
+                firstName: userInfo.firstName,
+                lastName: userInfo.lastName,
+                username: userInfo.username,
+            }
+            
+            const jwtToken = jwt.sign({user: body}, process.env.JWT_SECRET_KEY);
+                let maxAge = 7 * 24 * 60 * 60 * 1000; //7 days 
+                //res.json({body, token});
+                res.status(200)
+                    .cookie("token", jwtToken, {maxAge, httpOnly: true, sameSite: "none", secure: true})
+                    .send(JSON.stringify({
+                        body,
+                        jwtToken,
+                        msg: "Successfully logged in",
+                }));
+    
+        } else {
+            res.status(401)
+                .send({ msg: valRes.data.data.error.message || "Successfully logged in" });
+        }
     } catch(err) {
         console.log(err);
         res.status(500).send({
