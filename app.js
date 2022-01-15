@@ -13,6 +13,7 @@ const authRouter = require('./components/auth/authRouter');
 const auth = require('./components/auth/passport/auth');
 const studentRecordsRouter = require('./components/studentRecords/studentRecordsRouter');
 const notificationRouter = require('./components/notification/notificationRouter');
+const adminRouter = require('./components/admin/adminRouter');
 
 const sequelize = require('./components/dal/db');
 const { applyExtraSetup } = require('./components/dal/db_relationship');
@@ -40,6 +41,7 @@ app.use('/notification', notificationRouter);
 app.use('/courses', coursesRouter);
 app.use('/courses', studentRecordsRouter);
 app.use('/auth', authRouter);
+app.use('/admin', adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
