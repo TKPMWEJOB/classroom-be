@@ -526,6 +526,55 @@ exports.invitationTeacherHandle = async (req, res) => {
     
 }
 
+exports.joinByCode = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+    if (!req.body) {
+        res.status(400).send({
+            msg: "Content can not be empty!"
+        });
+        return;
+    }
+    const invitationId = req.body.invitationId;
+
+    if (invitationId.length === 8) {
+        try {
+            const course = await CoursesService.findOne(invitationId);
+            const student = await CoursesService.findPendingStudent(course.id, parsedToken.user.id);
+
+            let isSuccess = null;
+    
+            if (student !== null) {
+                res.status(409).send({
+                    msg: "You have already joined this class!"
+                });
+                return;
+            }
+            else {
+                isSuccess = await CoursesService.addStudent(course.id, parsedToken.user.id);
+            }
+    
+            if (isSuccess !== null) {
+                res.status(200).send({
+                    courseId: course.id,
+                    msg: "Join class successfully!"
+                });
+            }
+        } catch (err) {
+            res.status(500).send({
+                msg: err.message || "Some error occurred while adding student."
+            });
+            return;
+        }        
+    }
+    else {
+        res.status(404).send({
+            msg: "Invalid code."
+        });
+        return;
+    }
+}
+
 exports.findAllPeople = async (req, res) => {
     const token = req.cookies.token;
     const parsedToken = jwtDecode(token);

@@ -14,6 +14,8 @@ router.put('/invite-teacher', passport.authorize('jwt'), coursesController.invit
 
 router.put('/invitation-accepted', passport.authorize('jwt'), coursesController.invitationHandle);
 
+router.post('/join-by-code', passport.authorize('jwt'), coursesController.joinByCode);
+
 router.delete('/:id', passport.authorize('jwt'), coursesController.delete);
 
 router.put('/:id', passport.authorize('jwt'), coursesController.update);
