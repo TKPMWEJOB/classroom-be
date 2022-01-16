@@ -86,6 +86,35 @@ exports.index = async (req, res) => {
     }
 }
 
+exports.findOneRecord = async (req, res) => { 
+    const gradeId = req.params.gradeid;
+    const courseId = req.params.id;
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+    const userId = parsedToken.user.id;
+
+    try {
+        const user = await usersService.findOne(userId);
+        const record = await StudentRecordsService.findOnePublish(courseId, user.studentID, gradeId);
+        if (record) {
+            res.send(record);
+        }
+        else {
+            res.status(400).send({
+                message:
+                    err.message || "Could not find record."
+            });
+        }
+        
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred while retrieving record."
+        });
+    }
+}
+
 exports.uploadStudentList = async (req, res) => {
     try {
         console.log(req.body);

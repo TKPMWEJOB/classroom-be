@@ -28,6 +28,8 @@ router.get('/:id/people', passport.authorize('jwt'), coursesController.findAllPe
 // course's grade structure
 router.get('/:id/grade-structure', passport.authorize('jwt'), gradeStructureController.index);
 
+router.get('/:id/grade-structure/:gradeid', passport.authorize('jwt'), gradeStructureController.selectOneGrade);
+
 router.post('/:id/grade-structure', passport.authorize('jwt'), gradeStructureController.create);
 
 router.delete('/:id/grade-structure', passport.authorize('jwt'), gradeStructureController.delete);

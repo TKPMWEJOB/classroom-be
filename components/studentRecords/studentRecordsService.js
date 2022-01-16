@@ -20,6 +20,25 @@ exports.updateOrInsertStudent = async (student) => {
     });
 }
 
+exports.findOne = async (recordId) => {
+    return StudentRecord.findOne({
+        where: {
+            id: recordId
+        }
+    })
+}
+
+exports.findOnePublish = async (courseId, studentId, gradeId) => {
+    return StudentRecord.findOne({
+        where: {
+            courseId: courseId,
+            studentId: studentId,
+            gradeId: gradeId,
+            publish: true
+        }
+    })
+}
+
 exports.findIdStudentRecord = async (record) => {
     return StudentRecord.findOne({
         where: {
