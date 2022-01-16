@@ -2,6 +2,14 @@ const OfficialStudent = require('./studentRecordsModel').OfficialStudent;
 const StudentRecord = require('./studentRecordsModel').StudentRecord;
 const GradeStructure = require('../gradeStructure/gradeStructureModel');
 
+exports.findAll = async (courseId) => {
+    return StudentRecord.findAll({
+        where: {
+            courseId: courseId
+        }
+    })
+}
+
 exports.insertStudentList = async (studentlist) => {
     return OfficialStudent.bulkCreate(studentlist);
 }
@@ -22,6 +30,16 @@ exports.findIdStudentRecord = async (record) => {
     })
 }
 
+exports.findOneRecordWithFullInfor = async (courseId, studentId, gradeId) => {
+    return StudentRecord.findOne({
+        where: {
+            courseId: courseId,
+            studentId: studentId,
+            gradeId: gradeId
+        }
+    })
+}
+
 exports.findAllRecordByGradeId = async (courseId, gradeId) => {
     return StudentRecord.findAll({
         where: {
@@ -35,6 +53,15 @@ exports.findAllOfficialStudentInCourse = async (courseId) => {
     return OfficialStudent.findAll({
         where: {
             courseId: courseId
+        }
+    })
+}
+
+exports.findAllRecordOfOneStudent = async (courseId, studentId) => {
+    return StudentRecord.findAll({
+        where: {
+            courseId: courseId,
+            studentId: studentId
         }
     })
 }
