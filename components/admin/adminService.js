@@ -14,10 +14,10 @@ exports.findAllCourses = (name, createdDateOrder) => {
         ],
         include: [{
             model: User,
-            attributes: ['firstName', 'lastName', 'email'],
+            attributes: ['firstName', 'lastName', 'email', 'username'],
             as: 'owner',
         }],
-        attributes: ['id', 'name', 'room', 'section', 'subject', 'invitationId', "ownerId"],
+        attributes: ['id', 'name', 'room', 'section', 'subject', 'invitationId', "ownerId", 'createdAt', 'updatedAt'],
     });
 }
 
