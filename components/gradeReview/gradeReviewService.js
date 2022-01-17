@@ -36,7 +36,7 @@ exports.delete = (id) => {
 }
 
 exports.updateOne = async (id, data) => {
-    return GradeStructure.update(data, {
+    return GradeReview.update(data, {
         where: {
             id: id
         }
