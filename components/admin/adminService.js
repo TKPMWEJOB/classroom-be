@@ -45,7 +45,8 @@ exports.findAllUsers = (name, createdDateOrder) => {
                         [Op.like]: '%' + name + '%'
                     }
                 }
-            ]
+            ],
+            isAdmin: false,
         },
         order: [
             ['createdAt', createdDateOrder]
@@ -81,10 +82,70 @@ exports.findAllUsers = (name, createdDateOrder) => {
         ]
     });
 }
+
 exports.findOneAdminByEmail = (email) => {
     return User.findOne({where: {email}});
 }
 
 exports.findOneAdminByUsername = (username) => {
     return User.findOne({where: {username}});
+}
+
+exports.findAllAdmins = (name, createdDateOrder) => {
+    return User.findAndCountAll({
+        where: {
+            [Op.or]: [
+                {
+                    email: {
+                        [Op.like]: '%' + name + '%'
+                    }
+                },
+                {
+                    username: {
+                        [Op.like]: '%' + name + '%'
+                    }
+                },
+                {
+                    firstName: {
+                        [Op.like]: '%' + name + '%'
+                    }
+                },
+                {
+                    lastName: {
+                        [Op.like]: '%' + name + '%'
+                    }
+                }
+            ],
+            isAdmin: true,
+        },
+        order: [
+            ['createdAt', createdDateOrder]
+        ],
+        include: [
+            {
+                model: Course,
+                attributes: ['name'],
+                as: 'students',
+            },
+            {
+                model: Course,
+                attributes: ['name'],
+                as: 'teachers',
+            }
+        ],
+        attributes: [
+            'id',
+            'firstName',
+            'lastName',
+            'username',
+            'email',
+            'phone',
+            'address',
+            'birthday',
+            'gender',
+            'createdAt',
+            'updatedAt',
+            'isLocked',
+        ]
+    });
 }

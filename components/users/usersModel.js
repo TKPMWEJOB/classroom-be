@@ -78,11 +78,6 @@ const User = sequelize.define('Users', {
         allowNull: false,
         defaultValue: false,
     },
-    isSuperAdmin: {
-        type: Sequelize.BOOLEAN(),
-        allowNull: false,
-        defaultValue: false,
-    },
     isMapping: {
         type: Sequelize.BOOLEAN(),
         allowNull: false,
