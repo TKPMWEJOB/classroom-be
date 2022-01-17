@@ -14,6 +14,8 @@ router.put('/invite-teacher', passport.authorize('jwt'), coursesController.invit
 
 router.put('/invitation-accepted', passport.authorize('jwt'), coursesController.invitationHandle);
 
+router.post('/join-by-code', passport.authorize('jwt'), coursesController.joinByCode);
+
 router.delete('/:id', passport.authorize('jwt'), coursesController.delete);
 
 router.put('/:id', passport.authorize('jwt'), coursesController.update);
@@ -25,6 +27,8 @@ router.get('/:id/people', passport.authorize('jwt'), coursesController.findAllPe
 
 // course's grade structure
 router.get('/:id/grade-structure', passport.authorize('jwt'), gradeStructureController.index);
+
+router.get('/:id/grade-structure/:gradeid', passport.authorize('jwt'), gradeStructureController.selectOneGrade);
 
 router.post('/:id/grade-structure', passport.authorize('jwt'), gradeStructureController.create);
 

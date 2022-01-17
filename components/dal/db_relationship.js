@@ -5,6 +5,7 @@ const Teacher = require('../courses/coursesModel').Teacher;
 const Student = require('../courses/coursesModel').Student;
 const TeacherInvitation = require('../courses/coursesModel').TeacherInvitation;
 const GradeCategory = require('../gradeStructure/gradeStructureModel');
+const GradeReview = require('../gradeReview/gradeReviewModel');
 const StudentRecord = require('../studentRecords/studentRecordsModel').StudentRecord;
 const OfficialStudent = require('../studentRecords/studentRecordsModel').OfficialStudent;
 
@@ -170,6 +171,22 @@ function applyExtraSetup() {
     Notification.belongsTo(User, {
         foreignKey: {
             name: 'senderId',
+            allowNull: false
+        },
+        targetKey: 'id'
+    });
+
+    //Grade review relationship
+    StudentRecord.hasOne(GradeReview, {
+        foreignKey: {
+            name: 'recordId',
+            allowNull: false
+        }
+    });
+
+    GradeReview.belongsTo(StudentRecord, {
+        foreignKey: {
+            name: 'recordId',
             allowNull: false
         },
         targetKey: 'id'

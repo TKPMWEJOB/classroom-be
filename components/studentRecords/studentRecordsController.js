@@ -3,6 +3,7 @@ const usersService = require('../users/usersService');
 const GradesService = require('../gradeStructure/gradeStructureService');
 const UserService = require('../users/usersService');
 const NotificationsController = require('../notification/notificationController');
+const GradeReviewController = require('../gradeReview/gradeReviewController');
 const jwtDecode = require('jwt-decode');
 const Permission = require('../auth/rolePermission');
 
@@ -81,6 +82,35 @@ exports.index = async (req, res) => {
         res.status(500).send({
             message:
                 err.message || "Some error occurred while retrieving courses."
+        });
+    }
+}
+
+exports.findOneRecord = async (req, res) => { 
+    const gradeId = req.params.gradeid;
+    const courseId = req.params.id;
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+    const userId = parsedToken.user.id;
+
+    try {
+        const user = await usersService.findOne(userId);
+        const record = await StudentRecordsService.findOnePublish(courseId, user.studentID, gradeId);
+        if (record) {
+            res.send(record);
+        }
+        else {
+            res.status(400).send({
+                message:
+                    err.message || "Could not find record."
+            });
+        }
+        
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred while retrieving record."
         });
     }
 }
@@ -213,6 +243,9 @@ exports.publishOneGrade = async (req, res) => {
         // create notification
         await NotificationsController.createOneGradeNotification(parsedToken.user.id, gradeInfor.studentId, courseId);
 
+        // create grade review draft
+        await GradeReviewController.createOneReview(courseId, gradeInfor.studentId, gradeInfor.gradeId);
+
         res.status(200).send({
             message:
                 "Publish successfully",
@@ -233,10 +266,14 @@ exports.publishOneRow = async (req, res) => {
         const studentId = req.body.data.studentId;
         const courseId = req.params.id;
 
+        // publish student
         await StudentRecordsService.publishOneStudent(courseId, studentId);
 
         // create notification
         await NotificationsController.createOneStudentGradeNotification(parsedToken.user.id, studentId, courseId);
+
+        // create grade review draft
+        await GradeReviewController.createRowReviews(courseId, studentId);
 
         res.status(200).send({
             message:
@@ -262,6 +299,9 @@ exports.publishOneColumn = async (req, res) => {
         //create notification
         await NotificationsController.createManyGradeNotification(parsedToken.user.id, gradeId, courseId);
 
+        //create grade review draft
+        await GradeReviewController.createColReviews(courseId, gradeId);
+
         res.status(200).send({
             message:
                 "Publish successfully",
@@ -283,7 +323,11 @@ exports.publishAllRecords = async (req, res) => {
         await StudentRecordsService.publishAllRecords(courseId);
 
         //Create notification
-        await NotificationsController.createManyStudentGradeNotification(parsedToken.user.id, courseId)
+        await NotificationsController.createManyStudentGradeNotification(parsedToken.user.id, courseId);
+
+        //create grade review draft
+        await GradeReviewController.createAllReviews(courseId);
+
 
         res.status(200).send({
             message:
