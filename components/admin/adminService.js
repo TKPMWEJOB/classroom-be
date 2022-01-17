@@ -64,6 +64,7 @@ exports.findAllUsers = (name, createdDateOrder) => {
         ],
         attributes: [
             'id',
+            'username',
             'firstName',
             'lastName',
             'email',
@@ -72,7 +73,13 @@ exports.findAllUsers = (name, createdDateOrder) => {
             'studentID',
             'birthday',
             'school',
-            'gender'
+            'gender',
+            'createdAt',
+            'updatedAt'
         ]
     });
+}
+
+exports.updateStudentID = (id, data) => {
+    return User.update(data, { where: { id } });
 }
