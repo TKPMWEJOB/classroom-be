@@ -82,6 +82,11 @@ const User = sequelize.define('Users', {
         type: Sequelize.BOOLEAN(),
         allowNull: false,
         defaultValue: false,
+    },
+    isMapping: {
+        type: Sequelize.BOOLEAN(),
+        allowNull: false,
+        defaultValue: true,
     }
 })
 

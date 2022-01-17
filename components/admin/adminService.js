@@ -66,13 +66,18 @@ exports.findAllUsers = (name, createdDateOrder) => {
             'id',
             'firstName',
             'lastName',
+            'username',
             'email',
             'phone',
             'address',
             'studentID',
             'birthday',
             'school',
-            'gender'
+            'gender',
+            'createdAt',
+            'updatedAt',
+            'isLocked',
+            'isMapping',
         ]
     });
 }
