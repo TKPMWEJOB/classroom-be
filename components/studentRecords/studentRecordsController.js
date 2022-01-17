@@ -4,6 +4,8 @@ const GradesService = require('../gradeStructure/gradeStructureService');
 const UserService = require('../users/usersService');
 const NotificationsController = require('../notification/notificationController');
 const GradeReviewController = require('../gradeReview/gradeReviewController');
+const GradeReviewService = require('../gradeReview/gradeReviewService');
+const coursesService = require('../courses/coursesService');
 const jwtDecode = require('jwt-decode');
 const Permission = require('../auth/rolePermission');
 
@@ -338,6 +340,43 @@ exports.publishAllRecords = async (req, res) => {
         console.log(error);
         res.status(500).send({
             message: "Could not publish",
+        });
+    }
+};
+
+// grade review
+
+exports.requestReview = async (req, res) => {
+    const gradeId = req.params.gradeid;
+    const courseId = req.params.id;
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+    const userId = parsedToken.user.id;
+    let data = req.body;
+    data.status = "requesting";
+    try {
+        const user = await usersService.findOne(userId);
+        const record = await StudentRecordsService.findOnePublish(courseId, user.studentID, gradeId);
+        if (record) {
+            const result = await GradeReviewService.updateOne(record.id, data);
+            if (result) {
+                const course = await coursesService.findOne(courseId);
+                await NotificationsController.createGradeReviewRequestNotification(userId, course.ownerId, courseId);
+                res.status(200).send({
+                    message:
+                        "Request successfully",
+                });
+            }
+        }
+        else {
+            res.status(500).send({
+                message: "Could not send request",
+            });
+        }
+        
+    } catch (err) {
+        res.status(500).send({
+            message: "Could not send request",
         });
     }
 };
