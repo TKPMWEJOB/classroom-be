@@ -45,11 +45,15 @@ exports.index = async (req, res) => {
                 }
                 resArr[i / numGrade]['total'] = total;
             }
-            res.send(resArr);
+            result = {
+                draftData: data,
+                resData: resArr
+            }
+            res.send(result);
         }
         else {
             data = await StudentRecordsService.getList(courseId);
-            console.log(data);
+            //console.log(data);
             let resArr = [];
             for (let i = 0; i < data.length; i = i + numGrade) {
                 let userInfo = await UserService.findOneByStudentId(data[i].id);
@@ -73,8 +77,12 @@ exports.index = async (req, res) => {
                 }
                 resArr[i / numGrade]['total'] = total;
             }
-
-            res.send(resArr);
+            //console.log(resArr);
+            result = {
+                draftData: data,
+                resData: resArr
+            }
+            res.send(result);
         }
 
     } catch (err) {
@@ -100,18 +108,11 @@ exports.findOneRecord = async (req, res) => {
             res.send(record);
         }
         else {
-            res.status(400).send({
-                message:
-                    err.message || "Could not find record."
-            });
+            res.send(null);
         }
         
     } catch (err) {
-        console.log(err);
-        res.status(500).send({
-            message:
-                err.message || "Some error occurred while retrieving record."
-        });
+        res.status(500).send(null);
     }
 }
 
