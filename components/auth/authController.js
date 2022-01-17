@@ -30,6 +30,16 @@ exports.signin = async (req, res, next) => {
             }));
         }
 
+        //Admin page
+        if(req.headers.origin === process.env.ADMIN_ADDRESS)
+        {
+            if (!user.isAdmin && !user.isSuperAdmin) {
+                return res.status(401).send(JSON.stringify({
+                    msg: "You are not allow!"
+                }));
+            }
+        }
+
         if (user) {
             const body = {
                 id: user.id,

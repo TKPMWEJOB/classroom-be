@@ -76,3 +76,10 @@ exports.findAllUsers = (name, createdDateOrder) => {
         ]
     });
 }
+exports.findOneAdminByEmail = (email) => {
+    return User.findOne({where: {email}});
+}
+
+exports.findOneAdminByUsername = (username) => {
+    return User.findOne({where: {username}});
+}

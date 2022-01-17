@@ -72,6 +72,16 @@ const User = sequelize.define('Users', {
         type: Sequelize.BOOLEAN(),
         allowNull: false,
         defaultValue: false,
+    },
+    isAdmin: {
+        type: Sequelize.BOOLEAN(),
+        allowNull: false,
+        defaultValue: false,
+    },
+    isSuperAdmin: {
+        type: Sequelize.BOOLEAN(),
+        allowNull: false,
+        defaultValue: false,
     }
 })
 

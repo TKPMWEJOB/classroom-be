@@ -6,6 +6,7 @@ const ExtractJWT = passportJWT.ExtractJwt;
 const JWTStrategy   = passportJWT.Strategy;
 
 const UsersService = require('../../users/usersService');
+const AdminService = require('../../admin/adminService');
 
 module.exports = (app) => {
 
@@ -32,14 +33,14 @@ module.exports = (app) => {
             return done(null, false, {message: "This username doesn't exist!"});
             }
         }
-
+        
         let account;
         if (accountEmail === null) {
             account = accountUsername;
         } else if (accountUsername === null) {
             account = accountEmail;
         }
-
+        
         //Check password
         //if (password.localeCompare(account.password) !== 0)
         if (!bcrypt.compareSync(password, account.password))
@@ -60,6 +61,7 @@ module.exports = (app) => {
         {
           return done(null, false, {message: "Your account has been locked by admin!"})
         }
+
         
         return done(null, account);
       })
