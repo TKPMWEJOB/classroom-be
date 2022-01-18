@@ -31,7 +31,7 @@ exports.signin = async (req, res, next) => {
         }
 
         //Admin page
-        if(req.headers.origin === process.env.ADMIN_ADDRESS)
+        if(req.headers.origin === process.env.ADMIN_CLIENT_ADDRESS)
         {
             if (!user.isAdmin && !user.isSuperAdmin) {
                 return res.status(401).send(JSON.stringify({
