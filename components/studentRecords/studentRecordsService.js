@@ -49,7 +49,6 @@ exports.findGradeRecordReview = async (courseId, gradeId) => {
             gradeId: gradeId,
         },
         include: GradeReview,
-        include: GradeComment,
         order: [
             ['studentId', 'ASC'],
         ],
