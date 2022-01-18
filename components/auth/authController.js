@@ -193,6 +193,12 @@ exports.google = async (req, res, next) => {
         if (duplicateUser === null) {
             userInfo = await UsersService.create(userInfo);            
         } else {
+            if (duplicateUser.isLocked) {
+                res.status(403).send({
+                    msg: "Your account has been locked by admin!"
+                });
+                return;
+            }
             userInfo = duplicateUser;
         }
 
@@ -244,6 +250,12 @@ exports.facebook = async (req, res, next) => {
             if (duplicateUser === null) {
                 userInfo = await UsersService.create(userInfo);            
             } else {
+                if (duplicateUser.isLocked) {
+                    res.status(403).send({
+                        msg: "Your account has been locked by admin!"
+                    });
+                    return;
+                }
                 userInfo = duplicateUser;
             }
 
