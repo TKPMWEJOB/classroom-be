@@ -1,6 +1,5 @@
 "use strict";
 const Notification = require('./notificationModel');
-const sequelize = require('../dal/db');
 const { Op } = require("sequelize");
 
 exports.findAll = (userId, studentId) => {

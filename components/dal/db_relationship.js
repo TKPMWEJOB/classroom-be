@@ -6,6 +6,7 @@ const Student = require('../courses/coursesModel').Student;
 const TeacherInvitation = require('../courses/coursesModel').TeacherInvitation;
 const GradeCategory = require('../gradeStructure/gradeStructureModel');
 const GradeReview = require('../gradeReview/gradeReviewModel');
+const GradeComment = require('../gradeComment/gradeCommentModel');
 const StudentRecord = require('../studentRecords/studentRecordsModel').StudentRecord;
 const OfficialStudent = require('../studentRecords/studentRecordsModel').OfficialStudent;
 
@@ -187,6 +188,37 @@ function applyExtraSetup() {
     GradeReview.belongsTo(StudentRecord, {
         foreignKey: {
             name: 'recordId',
+            allowNull: false
+        },
+        targetKey: 'id'
+    });
+
+    //Grade comment relationship
+    StudentRecord.hasMany(GradeComment, {
+        foreignKey: {
+            name: 'recordId',
+            allowNull: false
+        }
+    });
+
+    GradeComment.belongsTo(StudentRecord, {
+        foreignKey: {
+            name: 'recordId',
+            allowNull: false
+        },
+        targetKey: 'id'
+    });
+
+    User.hasMany(GradeComment, {
+        foreignKey: {
+            name: 'senderId',
+            allowNull: false
+        }
+    });
+
+    GradeComment.belongsTo(User, {
+        foreignKey: {
+            name: 'senderId',
             allowNull: false
         },
         targetKey: 'id'

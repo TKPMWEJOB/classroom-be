@@ -4,10 +4,13 @@ const GradesService = require('../gradeStructure/gradeStructureService');
 const UserService = require('../users/usersService');
 const NotificationsController = require('../notification/notificationController');
 const GradeReviewController = require('../gradeReview/gradeReviewController');
+const gradeCommentController = require('../gradeComment/gradeCommentController');
+const gradeCommentService = require('../gradeComment/gradeCommentService');
 const GradeReviewService = require('../gradeReview/gradeReviewService');
 const coursesService = require('../courses/coursesService');
 const jwtDecode = require('jwt-decode');
 const Permission = require('../auth/rolePermission');
+const e = require('express');
 
 exports.index = async (req, res) => {
     const token = req.cookies.token;
@@ -422,6 +425,7 @@ exports.acceptReview = async (req, res) => {
         if (result) {
             //const course = await coursesService.findOne(courseId);
             await NotificationsController.createGradeAcceptRequestNotification(userId, studentId, courseId, newPoint.point, gradeId);
+            await gradeCommentService.create(userId, studentId, recordId, data.resolveComment);
             await this.findGradeRecord(req, res);
         }
         
@@ -448,12 +452,105 @@ exports.rejectReview = async (req, res) => {
         if (result) {
             //const course = await coursesService.findOne(courseId);
             await NotificationsController.createGradeRejectRequestNotification(userId, studentId, courseId);
+            await gradeCommentService.create(userId, studentId, recordId, data.resolveComment);
             await this.findGradeRecord(req, res);
         }
         
     } catch (err) {
         res.status(500).send({
             message: "Could not send rejection",
+        });
+    }
+};
+
+
+////////Comment///////
+
+exports.findStudentComment = async (req, res) => { 
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+    const userId = parsedToken.user.id;
+
+    const gradeId = req.params.gradeid;
+    const courseId = req.params.id;
+
+    try {
+        const user = await usersService.findOne(userId);
+        const record = await StudentRecordsService.findOneByIdInfor(courseId, user.studentID, gradeId);
+        console.log(record.id);
+        const commentList = await gradeCommentService.findAllByRecordId(record.id);
+        if (commentList) {
+            res.send(commentList);
+        }
+        else {
+            res.send(null);
+        }
+        
+    } catch (err) {
+        res.status(500).send(null);
+    }
+}
+
+/*exports.findTeacherComment = async (req, res) => { 
+
+    const gradeId = req.params.gradeid;
+    const courseId = req.params.id;
+
+    try {
+        const recordList = await StudentRecordsService.findGradeRecordReview(courseId, gradeId);
+        if (recordList) {
+            
+            res.send(recordList);
+        }
+        else {
+            res.send(null);
+        }
+        
+    } catch (err) {
+        res.status(500).send(null);
+    }
+}*/
+
+
+exports.studentComment = async (req, res) => {
+    const gradeId = req.params.gradeid;
+    const courseId = req.params.id;
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+    const userId = parsedToken.user.id;
+    const comment = req.body.comment;
+
+    try {
+        const user = await usersService.findOne(userId);
+        const record = await StudentRecordsService.findOneByIdInfor(courseId, user.studentID, gradeId);
+        await gradeCommentService.create(userId, record.id, comment);
+        await this.findStudentComment(req, res);
+    } catch (err) {
+        res.status(500).send({
+            message: "Could not send request",
+        });
+    }
+};
+
+exports.teacherComment = async (req, res) => {
+    //const gradeId = req.params.gradeid;
+    //const courseId = req.params.id;
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+    const userId = parsedToken.user.id;
+    const comment = req.body.comment;
+    //const studentId = req.body.studentId;
+    const recordId = req.body.recordId;
+
+    try {
+        await gradeCommentService.create(userId, recordId, comment);
+        res.status(200).send({
+            message:
+                "Comment successfully",
+        });
+    } catch (err) {
+        res.status(500).send({
+            message: "Could not send request",
         });
     }
 };

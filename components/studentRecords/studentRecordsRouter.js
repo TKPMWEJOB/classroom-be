@@ -19,4 +19,10 @@ router.get('/:id/grades/:gradeid/all', passport.authorize("jwt"), grantPermissio
 router.post('/:id/grades/:gradeid/request-review', passport.authorize("jwt"), grantPermission(["student"]), studentRecordController.requestReview);
 router.post('/:id/grades/:gradeid/accept-review', passport.authorize("jwt"), grantPermission(["teacher", "owner"]), studentRecordController.acceptReview);
 router.post('/:id/grades/:gradeid/reject-review', passport.authorize("jwt"), grantPermission(["teacher", "owner"]), studentRecordController.rejectReview);
+
+//Comment
+router.get('/:id/grades/:gradeid/comment/student', passport.authorize("jwt"), grantPermission(["student"]), studentRecordController.findStudentComment);
+//router.get('/:id/grades/:gradeid/comment/teacher', passport.authorize("jwt"), grantPermission(["teacher", "owner"]), studentRecordController.findTeacherComment);
+router.post('/:id/grades/:gradeid/comment/student-comment', passport.authorize("jwt"), grantPermission(["student"]), studentRecordController.studentComment);
+router.post('/:id/grades/:gradeid/comment/teacher-comment', passport.authorize("jwt"), grantPermission(["teacher", "owner"]), studentRecordController.teacherComment);
 module.exports = router;
