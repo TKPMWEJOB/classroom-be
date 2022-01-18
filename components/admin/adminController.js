@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const adminService = require('./adminService');
 const usersService = require('../users/usersService');
 const saltRounds = 10;
+
 exports.courses = async (req, res, next) => {
     try {
         const query = req.query;

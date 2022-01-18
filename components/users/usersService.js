@@ -50,7 +50,8 @@ exports.findOne = (id) => {
             'studentID',
             'birthday',
             'school',
-            'gender'
+            'gender',
+            'isMapping',
         ] 
     });
 }

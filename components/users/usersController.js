@@ -41,7 +41,8 @@ exports.updateNameId = async (req, res) => {
     const user = {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        studentID: req.body.studentID
+        studentID: req.body.studentID,
+        isMapping: req.body.isMapping,
     };
 
     if (!req.body) {
@@ -253,6 +254,13 @@ exports.findOneOtherUser = async (req, res) => {
 
     try {
         const data = await usersService.findOne(req.params.id);
+        if (!data.isMapping)
+        {
+            res.status(403).send({
+                message: 'You are not allow!'
+            });
+            return;
+        }
         if (data) {
             res.send(data);
         } else {
