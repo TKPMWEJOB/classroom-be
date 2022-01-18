@@ -110,6 +110,14 @@ exports.updateOrInsertStudentRecord = async (record) => {
     });
 }
 
+exports.updateOneWithId = async (record, id) => {
+    return StudentRecord.update(record, {
+        where: {
+            id: id
+        }
+    });
+}
+
 exports.resetList = async (id) => {
     return OfficialStudent.destroy({
         where: {

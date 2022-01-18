@@ -10,6 +10,9 @@ const GradeReview = sequelize.define('GradeReview', {
     explanation: {
         type: Sequelize.TEXT,
     },
+    resolveComment: {
+        type: Sequelize.TEXT,
+    },
     expectationPoint: {
         type: Sequelize.INTEGER
     },
