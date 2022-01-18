@@ -120,6 +120,26 @@ exports.findOneRecord = async (req, res) => {
     }
 }
 
+exports.findGradeRecord = async (req, res) => { 
+    const gradeId = req.params.gradeid;
+    const courseId = req.params.id;
+
+    try {
+        const recordList = await StudentRecordsService.findGradeRecordReview(courseId, gradeId);
+
+        if (recordList) {
+            res.send(recordList);
+        }
+        else {
+            res.send(null);
+        }
+        
+    } catch (err) {
+        res.status(500).send(null);
+    }
+}
+
+///////////////////Upload////////////////
 exports.uploadStudentList = async (req, res) => {
     try {
         console.log(req.body);
