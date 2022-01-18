@@ -11,6 +11,8 @@ router.get('/find-user/:id', usersController.findUserInCourse);
 
 router.get('/find-user/:studentId', usersController.findUserWithStudentId);
 
+router.get('/find-student/:studentId', usersController.findUserWithStudentId);
+
 router.delete('/', passport.authorize('jwt'), usersController.delete);
 
 router.put('/nameid', passport.authorize('jwt'), usersController.updateNameId); // update user's name and student id

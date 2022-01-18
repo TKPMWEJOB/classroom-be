@@ -402,3 +402,60 @@ exports.requestReview = async (req, res) => {
         });
     }
 };
+
+exports.acceptReview = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+    const userId = parsedToken.user.id;
+    const recordId = req.body.recordId;
+    const studentId = req.body.studentId;
+    const courseId = req.params.id;
+    const gradeId = req.params.gradeid;
+    const newPoint = {
+        point: req.body.point
+    }
+    const data = {
+        resolveComment: req.body.resolveComment,
+        status: 'accept'
+    }
+    try {
+        await StudentRecordsService.updateOneWithId(newPoint, recordId);
+        const result = await GradeReviewService.updateOne(recordId, data);
+        if (result) {
+            //const course = await coursesService.findOne(courseId);
+            await NotificationsController.createGradeAcceptRequestNotification(userId, studentId, courseId, newPoint.point, gradeId);
+            await this.findGradeRecord(req, res);
+        }
+        
+    } catch (err) {
+        res.status(500).send({
+            message: "Could not send acception",
+        });
+    }
+};
+
+exports.rejectReview = async (req, res) => {
+    const token = req.cookies.token;
+    const parsedToken = jwtDecode(token);
+    const userId = parsedToken.user.id;
+    const recordId = req.body.recordId;
+    const studentId = req.body.studentId;
+    const courseId = req.params.id;
+    const data = {
+        resolveComment: req.body.resolveComment,
+        status: 'reject'
+    }
+    try {
+        const result = await GradeReviewService.updateOne(recordId, data);
+        if (result) {
+            //const course = await coursesService.findOne(courseId);
+            await NotificationsController.createGradeRejectRequestNotification(userId, studentId, courseId);
+            await this.findGradeRecord(req, res);
+        }
+        
+    } catch (err) {
+        res.status(500).send({
+            message: "Could not send rejection",
+        });
+    }
+};

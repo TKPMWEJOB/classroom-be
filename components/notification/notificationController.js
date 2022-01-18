@@ -4,6 +4,8 @@ const studentRecordsService = require('../studentRecords/studentRecordsService')
 const coursesService = require('../courses/coursesService');
 const usersService = require('../users/usersService');
 const jwtDecode = require('jwt-decode');
+const GradeStructure = require('../gradeStructure/gradeStructureModel');
+const GradeStructureService = require('../gradeStructure/gradeStructureService');
 
 exports.index = async (req, res) => {
   const token = req.cookies.token;
@@ -190,5 +192,53 @@ exports.createGradeReviewRequestNotification = async (senderId, receiverId, cour
   }
 };
 
+exports.createGradeRejectRequestNotification = async (senderId, receiverId, courseId) => {
+  try {
+    // create notification
+    const course = await coursesService.findOne(courseId);
+
+    const notification = {
+        senderId: senderId,
+        receiverId: receiverId,
+        receiverRole: `student`,
+        title: `New notification from ${course.name}`,
+        content: `Your request to review grade in ${course.name} has been accept.`,
+        status: 'waiting'
+    }
+
+    const result = await notificationService.create(notification);
+    return result;
+  } 
+  catch (err) {
+    res.status(500).send({
+        message: err.message || "Some error occurred while sending notifications."
+    });
+  }
+};
+
+exports.createGradeAcceptRequestNotification = async (senderId, receiverId, courseId, point, gradeId) => {
+  try {
+    // create notification
+    const course = await coursesService.findOne(courseId);
+    const grade = await GradeStructureService.findOneWithGradeId(gradeId);
+    
+    const notification = {
+        senderId: senderId,
+        receiverId: receiverId,
+        receiverRole: `student`,
+        title: `New notification from ${course.name}`,
+        content: `Your request to review grade in ${course.name} has been accepted. Your new point of ${grade.title} (${grade.point}) is ${point}`,
+        status: 'waiting'
+    }
+
+    const result = await notificationService.create(notification);
+    return result;
+  } 
+  catch (err) {
+    res.status(500).send({
+        message: err.message || "Some error occurred while sending notifications."
+    });
+  }
+};
 
 
