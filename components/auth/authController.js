@@ -30,6 +30,16 @@ exports.signin = async (req, res, next) => {
             }));
         }
 
+        //Admin page
+        if(req.headers.origin === process.env.ADMIN_CLIENT_ADDRESS)
+        {
+            if (!user.isAdmin && !user.isSuperAdmin) {
+                return res.status(401).send(JSON.stringify({
+                    msg: "You are not allow!"
+                }));
+            }
+        }
+
         if (user) {
             const body = {
                 id: user.id,
@@ -183,6 +193,12 @@ exports.google = async (req, res, next) => {
         if (duplicateUser === null) {
             userInfo = await UsersService.create(userInfo);            
         } else {
+            if (duplicateUser.isLocked) {
+                res.status(403).send({
+                    msg: "Your account has been locked by admin!"
+                });
+                return;
+            }
             userInfo = duplicateUser;
         }
 
@@ -234,6 +250,12 @@ exports.facebook = async (req, res, next) => {
             if (duplicateUser === null) {
                 userInfo = await UsersService.create(userInfo);            
             } else {
+                if (duplicateUser.isLocked) {
+                    res.status(403).send({
+                        msg: "Your account has been locked by admin!"
+                    });
+                    return;
+                }
                 userInfo = duplicateUser;
             }
 

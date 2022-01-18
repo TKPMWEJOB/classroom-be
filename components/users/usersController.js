@@ -154,7 +154,7 @@ exports.findUserInCourse = async (req, res) => {
         }*/
 
         if (invitationId.length === 8) {
-            course = await coursesService.findOne(invitationId);
+            let course = await coursesService.findOne(invitationId);
             if (course !== null) {
                 if (userId !== null) {
                     const student = await coursesService.findOneStudent(course.id, userId);
@@ -222,6 +222,7 @@ exports.findUserInCourse = async (req, res) => {
         
         
     } catch (err) {
+        console.log(err);
         res.status(500).send({
             message: err.message || "Some error occurred while finding the user."
         });
@@ -268,6 +269,7 @@ exports.findOneOtherUser = async (req, res) => {
 };
 
 exports.findUserWithStudentId = async (req, res) => {
+    const token = req.cookies.token;
     try {
         const data = await usersService.findOneByStudentId(req.params.studentId);
         res.send(data);

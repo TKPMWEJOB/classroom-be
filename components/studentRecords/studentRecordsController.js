@@ -62,11 +62,13 @@ exports.index = async (req, res) => {
             let resArr = [];
             for (let i = 0; i < data.length; i = i + numGrade) {
                 let userInfo = await UserService.findOneByStudentId(data[i].id);
+                console.log(userInfo);
                 resArr.push({
                     id: i / numGrade,
                     fullName: data[i].fullName,
                     studentId: data[i].id,
                     userId: userInfo ? userInfo.id : null,
+                    isMapping: userInfo?.isMapping,
                 });
                 let pointList = [];
                 let total = 0;

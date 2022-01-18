@@ -14,10 +14,10 @@ exports.findAllCourses = (name, createdDateOrder) => {
         ],
         include: [{
             model: User,
-            attributes: ['firstName', 'lastName', 'email'],
+            attributes: ['firstName', 'lastName', 'email', 'username'],
             as: 'owner',
         }],
-        attributes: ['id', 'name', 'room', 'section', 'subject', 'invitationId', "ownerId"],
+        attributes: ['id', 'name', 'room', 'section', 'subject', 'invitationId', "ownerId", 'createdAt', 'updatedAt'],
     });
 }
 
@@ -45,7 +45,79 @@ exports.findAllUsers = (name, createdDateOrder) => {
                         [Op.like]: '%' + name + '%'
                     }
                 }
-            ]
+            ],
+            isAdmin: false,
+        },
+        order: [
+            ['createdAt', createdDateOrder]
+        ],
+        include: [
+            {
+                model: Course,
+                attributes: ['name'],
+                as: 'students',
+            },
+            {
+                model: Course,
+                attributes: ['name'],
+                as: 'teachers',
+            }
+        ],
+        attributes: [
+            'id',
+            'username',
+            'firstName',
+            'lastName',
+            'username',
+            'email',
+            'phone',
+            'address',
+            'studentID',
+            'birthday',
+            'school',
+            'gender',
+            'createdAt',
+            'updatedAt',
+            'isLocked',
+            'isMapping',
+        ]
+    });
+}
+
+exports.findOneAdminByEmail = (email) => {
+    return User.findOne({where: {email}});
+}
+
+exports.findOneAdminByUsername = (username) => {
+    return User.findOne({where: {username}});
+}
+
+exports.findAllAdmins = (name, createdDateOrder) => {
+    return User.findAndCountAll({
+        where: {
+            [Op.or]: [
+                {
+                    email: {
+                        [Op.like]: '%' + name + '%'
+                    }
+                },
+                {
+                    username: {
+                        [Op.like]: '%' + name + '%'
+                    }
+                },
+                {
+                    firstName: {
+                        [Op.like]: '%' + name + '%'
+                    }
+                },
+                {
+                    lastName: {
+                        [Op.like]: '%' + name + '%'
+                    }
+                }
+            ],
+            isAdmin: true,
         },
         order: [
             ['createdAt', createdDateOrder]
@@ -66,13 +138,18 @@ exports.findAllUsers = (name, createdDateOrder) => {
             'id',
             'firstName',
             'lastName',
+            'username',
             'email',
             'phone',
             'address',
-            'studentID',
             'birthday',
-            'school',
-            'gender'
+            'gender',
+            'createdAt',
+            'updatedAt',
+            'isLocked',
         ]
     });
+}
+exports.updateStudentID = (id, data) => {
+    return User.update(data, { where: { id } });
 }
