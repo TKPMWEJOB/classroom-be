@@ -9,6 +9,8 @@ router.get('/:id', passport.authorize('jwt'), usersController.findOneOtherUser);
 
 router.get('/find-user/:id', usersController.findUserInCourse);
 
+router.get('/find-user-in-course/:id', usersController.findUserInCourse);
+
 router.get('/find-user/:studentId', usersController.findUserWithStudentId);
 
 router.get('/find-student/:studentId', usersController.findUserWithStudentId);
