@@ -13,7 +13,10 @@ exports.courses = async (req, res, next) => {
     }
     catch (err) {
         console.log(err);
-        res.send(err);
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred while retrieving courses."
+        });
     }
 
 }
@@ -28,7 +31,10 @@ exports.users = async (req, res, next) => {
     }
     catch (err) {
         console.log(err);
-        res.send(err);
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred while retrieving users."
+        });
     }
 
 }
@@ -116,4 +122,18 @@ exports.adminsCreate = async (req, res, next) => {
                 err.message || "Some error occurred while creating account."
         });
     };
+}
+
+exports.updateStudentID = async (req, res, next) => {
+    try {
+        await adminService.updateStudentID(req.body.id, req.body.studentID);
+        res.send("Success");
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred while retrieving updating."
+        });
+    }
 }

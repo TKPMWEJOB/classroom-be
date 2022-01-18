@@ -8,6 +8,9 @@ exports.StudentRecord = sequelize.define('StudentRecords', {
     publish: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
+    },
+    publishedDate: {
+        type: Sequelize.DATE
     }
 })
 

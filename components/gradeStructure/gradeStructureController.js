@@ -25,6 +25,17 @@ exports.index = async (req, res) => {
     }
 };
 
+exports.selectOneGrade = async (req, res) => {
+    try {
+        const grade = await GradesService.findOneWithGradeId(req.params.gradeid);
+        res.send(grade);
+    } catch (err) {
+        res.status(500).send({
+            msg: err.message || "Some error occurred while finding grade structure."
+        });
+    }
+};
+
 exports.create = async (req, res) => {
     const token = req.cookies.token;
     const parsedToken = jwtDecode(token);

@@ -9,6 +9,8 @@ router.get('/users', passport.authorize('jwt'), adminController.users);
 
 router.put('/users', passport.authorize('jwt'), adminController.usersUpdate);
 
+router.post('/users/update-student-id', adminController.updateStudentID);
+
 router.get('/admin-account', passport.authorize('jwt'), adminController.admins);
 
 router.post('/admin-account', passport.authorize('jwt'), adminController.adminsCreate);

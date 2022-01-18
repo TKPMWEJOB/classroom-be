@@ -1,6 +1,7 @@
 const OfficialStudent = require('./studentRecordsModel').OfficialStudent;
 const StudentRecord = require('./studentRecordsModel').StudentRecord;
 const GradeStructure = require('../gradeStructure/gradeStructureModel');
+const { Op } = require("sequelize");
 
 exports.findAll = async (courseId) => {
     return StudentRecord.findAll({
@@ -18,6 +19,25 @@ exports.updateOrInsertStudent = async (student) => {
     return OfficialStudent.upsert(student, {
         where: {id: student.id, courseId: student.courseId}
     });
+}
+
+exports.findOne = async (recordId) => {
+    return StudentRecord.findOne({
+        where: {
+            id: recordId
+        }
+    })
+}
+
+exports.findOnePublish = async (courseId, studentId, gradeId) => {
+    return StudentRecord.findOne({
+        where: {
+            courseId: courseId,
+            studentId: studentId,
+            gradeId: gradeId,
+            publish: true
+        }
+    })
 }
 
 exports.findIdStudentRecord = async (record) => {
@@ -101,7 +121,7 @@ exports.getList = async (courseId) => {
         where: {courseId: courseId},
         include: [{
             model: StudentRecord,
-            attributes: ['point', 'gradeId', 'studentId'],
+            attributes: ['point', 'gradeId', 'studentId', 'publish'],
             include: [{
                 model: GradeStructure,
                 attributes: ['index'],
@@ -133,12 +153,17 @@ exports.getStudentGrade = async (studentId, courseId) => {
 exports.publishOneRecord = async (courseId, gradeInfor) => {
     return StudentRecord.update(
         {
-            publish: true
+            publish: true,
+            publishedDate: Date.now()
         }, {
         where: {
             courseId: courseId,
             studentId: gradeInfor.studentId,
-            gradeId: gradeInfor.gradeId
+            gradeId: gradeInfor.gradeId,
+            publish: false,
+            point: {
+                [Op.not]: null
+            }
         }
     });
 }
@@ -146,11 +171,16 @@ exports.publishOneRecord = async (courseId, gradeInfor) => {
 exports.publishOneStudent = async (courseId, studentId) => {
     return StudentRecord.update(
         {
-            publish: true
+            publish: true,
+            publishedDate: Date.now()
         }, {
         where: {
             courseId: courseId,
-            studentId: studentId
+            studentId: studentId,
+            publish: false,
+            point: {
+                [Op.not]: null
+            }
         }
     });
 }
@@ -158,11 +188,16 @@ exports.publishOneStudent = async (courseId, studentId) => {
 exports.publishOneGrade = async (courseId, gradeId) => {
     return StudentRecord.update(
         {
-            publish: true
+            publish: true,
+            publishedDate: Date.now()
         }, {
         where: {
             courseId: courseId,
-            gradeId: gradeId
+            gradeId: gradeId,
+            publish: false,
+            point: {
+                [Op.not]: null
+            }
         }
     });
 }
@@ -170,10 +205,15 @@ exports.publishOneGrade = async (courseId, gradeId) => {
 exports.publishAllRecords = async (courseId) => {
     return StudentRecord.update(
         {
-            publish: true
+            publish: true,
+            publishedDate: Date.now()
         }, {
         where: {
-            courseId: courseId
+            courseId: courseId,
+            publish: false,
+            point: {
+                [Op.not]: null
+            }
         }
     });
 }

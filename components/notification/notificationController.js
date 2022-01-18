@@ -165,5 +165,30 @@ exports.updateViewedStatus = async (req, res) => {
   }
 };
 
+exports.createGradeReviewRequestNotification = async (senderId, receiverId, courseId) => {
+  try {
+    // create notification
+    const course = await coursesService.findOne(courseId);
+    const sender = await usersService.findOne(senderId);
+
+    const notification = {
+        senderId: senderId,
+        receiverId: receiverId,
+        receiverRole: `teacher`,
+        title: `New grade review request in ${course.name}`,
+        content: `You receive a new grade review request from ${sender.lastName} ${sender.firstName} in ${course.name}.`,
+        status: 'waiting'
+    }
+
+    const result = await notificationService.create(notification);
+    return result;
+  } 
+  catch (err) {
+    res.status(500).send({
+        message: err.message || "Some error occurred while sending notifications."
+    });
+  }
+};
+
 
 

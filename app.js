@@ -28,7 +28,7 @@ app.set('view engine', 'hbs');
 
 app.use(cors({ origin: [
   process.env.CLIENT_ADDRESS,
-  process.env.ADMIN_ADDRESS,
+  process.env.ADMIN_CLIENT_ADDRESS
 ], credentials: true }));
 app.use(logger('dev'));
 app.use(express.json());
