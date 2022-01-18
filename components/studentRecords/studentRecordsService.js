@@ -1,6 +1,7 @@
 const OfficialStudent = require('./studentRecordsModel').OfficialStudent;
 const StudentRecord = require('./studentRecordsModel').StudentRecord;
 const GradeStructure = require('../gradeStructure/gradeStructureModel');
+const GradeReview = require('../gradeReview/gradeReviewModel');
 const { Op } = require("sequelize");
 
 exports.findAll = async (courseId) => {
@@ -37,6 +38,19 @@ exports.findOnePublish = async (courseId, studentId, gradeId) => {
             gradeId: gradeId,
             publish: true
         }
+    })
+}
+
+exports.findGradeRecordReview = async (courseId, gradeId) => {
+    return StudentRecord.findAll({
+        where: {
+            courseId: courseId,
+            gradeId: gradeId,
+        },
+        include: GradeReview,
+        order: [
+            ['studentId', 'ASC'],
+        ],
     })
 }
 

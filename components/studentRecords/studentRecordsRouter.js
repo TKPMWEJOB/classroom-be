@@ -5,7 +5,8 @@ const studentRecordController = require('./studentRecordsController');
 const grantPermission = require('../auth/rolePermission').grantPermission;
 
 router.get('/:id/grades', passport.authorize("jwt"), studentRecordController.index);
-router.get('/:id/grades/:gradeid', passport.authorize("jwt"), grantPermission(["student"]), studentRecordController.findOneRecord);
+router.get('/:id/grades/:gradeid/student', passport.authorize("jwt"), grantPermission(["student"]), studentRecordController.findOneRecord);
+router.get('/:id/grades/:gradeid/all', passport.authorize("jwt"), grantPermission(["teacher", "owner"]), studentRecordController.findGradeRecord);
 router.post('/:id/grades/:gradeid/request-review', passport.authorize("jwt"), grantPermission(["student"]), studentRecordController.requestReview);
 router.post('/:id/grades/upload/studentlist', passport.authorize("jwt"), grantPermission(["teacher", "owner"]), studentRecordController.uploadStudentList);
 router.post('/:id/grades/upload/full-grade', passport.authorize("jwt"), grantPermission(["teacher", "owner"]), studentRecordController.uploadFullGrade);
