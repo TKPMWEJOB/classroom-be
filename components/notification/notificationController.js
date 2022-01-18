@@ -12,7 +12,7 @@ exports.index = async (req, res) => {
   try {
     const userInfor = await usersService.findOne(userId);
     const data = await notificationService.findAll(userId, userInfor.studentID);
-    console.log(data);
+    //console.log(data);
     if (data) {
         res.send(data);
     } else {
