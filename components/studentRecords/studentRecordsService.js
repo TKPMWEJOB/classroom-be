@@ -2,6 +2,7 @@ const OfficialStudent = require('./studentRecordsModel').OfficialStudent;
 const StudentRecord = require('./studentRecordsModel').StudentRecord;
 const GradeStructure = require('../gradeStructure/gradeStructureModel');
 const GradeReview = require('../gradeReview/gradeReviewModel');
+const User = require('../users/usersModel');
 const GradeComment = require('../gradeComment/gradeCommentModel');
 const { Op } = require("sequelize");
 
@@ -48,7 +49,12 @@ exports.findGradeRecordReview = async (courseId, gradeId) => {
             courseId: courseId,
             gradeId: gradeId,
         },
-        include: GradeReview,
+        include: [{ 
+            model: GradeReview 
+        }, { 
+            model: GradeComment,
+            include: [User]
+        }],
         order: [
             ['studentId', 'ASC'],
         ],

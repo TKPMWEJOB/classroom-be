@@ -131,6 +131,14 @@ exports.findGradeRecord = async (req, res) => {
         const recordList = await StudentRecordsService.findGradeRecordReview(courseId, gradeId);
 
         if (recordList) {
+            let resArr = [];
+            for(let i = 0; i < recordList.length; i++){
+                let record = recordList[i];
+                let newComments = record.GradeComments;
+                newComments.sort(function(a, b){return b.id - a.id});
+                record.GradeComments = newComments;
+                resArr.push(record);
+            }
             res.send(recordList);
         }
         else {
@@ -479,7 +487,6 @@ exports.findStudentComment = async (req, res) => {
     try {
         const user = await usersService.findOne(userId);
         const record = await StudentRecordsService.findOneByIdInfor(courseId, user.studentID, gradeId);
-        //console.log(record.id);
         const commentList = await gradeCommentService.findAllByRecordId(record.id);
         if (commentList) {
             res.send(commentList);
@@ -493,25 +500,21 @@ exports.findStudentComment = async (req, res) => {
     }
 }
 
-/*exports.findTeacherComment = async (req, res) => { 
-
-    const gradeId = req.params.gradeid;
-    const courseId = req.params.id;
+exports.findTeacherComment = async (req, res) => {
+    const recordId = req.body.recordId;
 
     try {
-        const recordList = await StudentRecordsService.findGradeRecordReview(courseId, gradeId);
-        if (recordList) {
-            
-            res.send(recordList);
+        const commentList = await gradeCommentService.findAllByRecordId(recordId);
+        if (commentList) {
+            res.send(commentList);
         }
         else {
             res.send(null);
         }
-        
     } catch (err) {
         res.status(500).send(null);
     }
-}*/
+}
 
 
 exports.studentComment = async (req, res) => {
@@ -546,10 +549,7 @@ exports.teacherComment = async (req, res) => {
 
     try {
         await gradeCommentService.create(userId, recordId, comment);
-        res.status(200).send({
-            message:
-                "Comment successfully",
-        });
+        await this.findGradeRecord(req, res);
     } catch (err) {
         res.status(500).send({
             message: "Could not send request",
