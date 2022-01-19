@@ -1,5 +1,6 @@
 "use strict";
 const GradeComment = require('./gradeCommentModel');
+const User = require('../users/usersModel');
 const sequelize = require('../dal/db');
 const { Op } = require("sequelize");
 
@@ -8,7 +9,7 @@ exports.findAllByRecordId = (recordId) => {
         where: {
             recordId: recordId
         },
-        //include: User,
+        include: User,
         order: [
             ['createdAt', 'DESC']
         ]

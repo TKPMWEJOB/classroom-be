@@ -427,7 +427,7 @@ exports.acceptReview = async (req, res) => {
         if (result) {
             //const course = await coursesService.findOne(courseId);
             await NotificationsController.createGradeAcceptRequestNotification(userId, studentId, courseId, newPoint.point, gradeId);
-            await gradeCommentService.create(userId, studentId, recordId, data.resolveComment);
+            await gradeCommentService.create(userId, recordId, data.resolveComment);
             await this.findGradeRecord(req, res);
         }
         
@@ -454,7 +454,7 @@ exports.rejectReview = async (req, res) => {
         if (result) {
             //const course = await coursesService.findOne(courseId);
             await NotificationsController.createGradeRejectRequestNotification(userId, studentId, courseId);
-            await gradeCommentService.create(userId, studentId, recordId, data.resolveComment);
+            await gradeCommentService.create(userId, recordId, data.resolveComment);
             await this.findGradeRecord(req, res);
         }
         
@@ -479,7 +479,7 @@ exports.findStudentComment = async (req, res) => {
     try {
         const user = await usersService.findOne(userId);
         const record = await StudentRecordsService.findOneByIdInfor(courseId, user.studentID, gradeId);
-        console.log(record.id);
+        //console.log(record.id);
         const commentList = await gradeCommentService.findAllByRecordId(record.id);
         if (commentList) {
             res.send(commentList);
