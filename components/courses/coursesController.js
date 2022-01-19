@@ -10,10 +10,10 @@ const { Course } = require('./coursesModel');
 const inviteTeacherLimitTime = 60 * 60; // 1 hour
 
 exports.index = async (req, res) => {
-    const token = req.cookies.token;
-    const parsedToken = jwtDecode(token);
-
     try {
+        const token = req.cookies.token;
+        const parsedToken = jwtDecode(token);
+
         const teachingCourses = await CoursesService.findAllCoursesWithTeacherId(parsedToken.user.id);
         const studyingCourses = await CoursesService.findAllCoursesWithStudentId(parsedToken.user.id);
         const data = teachingCourses.concat(studyingCourses);
@@ -31,7 +31,7 @@ exports.create = async (req, res) => {
     const token = req.cookies.token;
     const parsedToken = jwtDecode(token);
     if (!req.body) {
-        res.status(400).send({
+        return res.status(400).send({
             message: "Content can not be empty!"
         });
     }
@@ -52,11 +52,11 @@ exports.create = async (req, res) => {
             }
         } catch (err) {
             console.log(err);
-            res.status(500).send({
+            return res.status(500).send({
                 message:
                     err.message || "Some error occurred while creating the course."
             });
-        };
+        }
     }
 
 
@@ -72,10 +72,10 @@ exports.create = async (req, res) => {
 
     try {
         const data = await CoursesService.create(course);
-        res.send(data);
+        return res.send(data);
     } catch (err) {
         console.log(err);
-        res.status(500).send({
+        return res.status(500).send({
             message:
                 err.message || "Some error occurred while creating the course."
         });
@@ -83,121 +83,123 @@ exports.create = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
-    const token = req.cookies.token;
-    const parsedToken = jwtDecode(token);
-
-    const role = await Permission.getRole(parsedToken.user.id, req.params.id);
-    if (role != 'teacher' && role != 'owner') {
-        res.status(403).send({
-            message: 'Forbbiden'
-        });
-    }
-
     try {
+
+        const token = req.cookies.token;
+        const parsedToken = jwtDecode(token);
+
+        const role = await Permission.getRole(parsedToken.user.id, req.params.id);
+        if (role != 'teacher' && role != 'owner') {
+            return res.status(403).send({
+                message: 'Forbbiden'
+            });
+        }
+
         const num = await CoursesService.delete(req.params.id, parsedToken.user.id)
         if (num == 1) {
             res.send({
                 message: "Course was deleted successfully!"
             });
         } else {
-            res.status(404).send({
+            return res.status(404).send({
                 message: 'Course not found'
             });
         }
     } catch (err) {
-        res.status(500).send({
+        return res.status(500).send({
             message: err.message || "Some error occurred while deleting the course."
         });
     }
 };
 
 exports.update = async (req, res) => {
-    const token = req.cookies.token;
-    const parsedToken = jwtDecode(token);
-
-    const role = await Permission.getRole(parsedToken.user.id, req.params.id);
-    if (role != 'teacher' && role != 'owner') {
-        res.status(403).send({
-            message: 'Forbbiden'
-        });
-    }
-
-    if (!req.body) {
-        res.status(400).send({
-            message: "Content can not be empty!"
-        });
-    }
-    
     try {
+
+        const token = req.cookies.token;
+        const parsedToken = jwtDecode(token);
+
+        const role = await Permission.getRole(parsedToken.user.id, req.params.id);
+        if (role != 'teacher' && role != 'owner') {
+            return res.status(403).send({
+                message: 'Forbbiden'
+            });
+        }
+
+        if (!req.body) {
+            return res.status(400).send({
+                message: "Content can not be empty!"
+            });
+        }
+
         const num = await CoursesService.update(req.body, req.params.id, parsedToken.user.id);
         if (num == 1) {
-            this.findOne(req, res);
+            return this.findOne(req, res);
         } else {
-            res.status(404).send({
+            return res.status(404).send({
                 message: 'Course not found'
             });
         }
     } catch (err) {
-        res.status(500).send({
+        return res.status(500).send({
             message: err.message || "Some error occurred while updating the course."
         });
     }
 };
 
 exports.findOne = async (req, res) => {
-    const token = req.cookies.token;
-    const parsedToken = jwtDecode(token);
-
-    const role = await Permission.getRole(parsedToken.user.id, req.params.id)
-    console.log('Role:', role);
-
-    if (role === 'guest') {
-        res.status(404).send({
-            message: 'Course not found'
-        });
-    }
-
     try {
+        const token = req.cookies.token;
+        const parsedToken = jwtDecode(token);
+
+        const role = await Permission.getRole(parsedToken.user.id, req.params.id)
+        console.log('Role:', role);
+
+        if (role === 'guest') {
+            return res.status(404).send({
+                message: 'Course not found'
+            });
+        }
+
         const data = await CoursesService.findOne(req.params.id);
         if (data !== null) {
             //console.log(data);
-            res.send({ data, role });
+            return res.send({ data, role });
         } else {
-            res.status(404).send({
+            return res.status(404).send({
                 message: 'Course not found'
             });
         }
     } catch (err) {
         console.log(err);
-        res.status(500).send({
+        return res.status(500).send({
             message: err.message || "Some error occurred while finding the course."
         });
     }
 };
 
 exports.inviteMember = async (req, res) => {
-    //const role = req.body.role;
-    const invitationLink = req.body.invitationLink;
-    const courseId = req.body.courseId;
-    const emailReceiver = req.body.emailReceiver;
-    const emailSender = req.body.emailSender;
-    const sender = req.body.sender;
-
-    //let testAccount = await nodemailer.createTestAccount();
-
-
-    let transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-            user: process.env.CLASS_SERVICE_GMAIL,
-            pass: process.env.CLASS_SERVICE_PASS
-        }
-    });
-
-    let isAcceptSendMail = false;
-    //let isInviteTeacherError = false;
-
     try {
+
+        //const role = req.body.role;
+        const invitationLink = req.body.invitationLink;
+        const courseId = req.body.courseId;
+        const emailReceiver = req.body.emailReceiver;
+        const emailSender = req.body.emailSender;
+        const sender = req.body.sender;
+
+        //let testAccount = await nodemailer.createTestAccount();
+
+
+        let transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.CLASS_SERVICE_GMAIL,
+                pass: process.env.CLASS_SERVICE_PASS
+            }
+        });
+
+        let isAcceptSendMail = false;
+        //let isInviteTeacherError = false;
         //console.log('access');
         const existingUser = await UsersService.findOneByEmail(emailReceiver);
         //console.log(existingUser);
@@ -217,7 +219,7 @@ exports.inviteMember = async (req, res) => {
                 else {
                     if (student !== null) {
                         if (student.confirmed) {
-                            res.status(404).send({
+                            return res.status(404).send({
                                 msg: 'User has already been in your class'
                             });
                         }
@@ -233,7 +235,7 @@ exports.inviteMember = async (req, res) => {
             else {
                 if (student !== null) {
                     if (student.confirmed) {
-                        res.status(404).send({
+                        return res.status(404).send({
                             msg: 'User has already been in your class'
                         });
                     }
@@ -252,12 +254,12 @@ exports.inviteMember = async (req, res) => {
 
     } catch (err) {
         console.log(err);
-    };
+    }
 
     if (isAcceptSendMail) {
         try {
             const course = await CoursesService.findOne(courseId);
-            
+
             const Link = invitationLink.concat(course.invitationId);
 
             let info = await transporter.sendMail({
@@ -269,9 +271,9 @@ exports.inviteMember = async (req, res) => {
             });
 
             if (info !== null) {
-                res.send({ msg: 'Invitation sent!' });
+                return res.send({ msg: 'Invitation sent!' });
             } else {
-                res.status(500).send({
+                return res.status(500).send({
                     msg: "Some error occurred while sending invitation."
                 });
             }
@@ -284,28 +286,29 @@ exports.inviteMember = async (req, res) => {
 };
 
 exports.inviteTeacher = async (req, res) => {
-    //const role = req.body.role;
-    const invitationLink = req.body.invitationLink;
-    const courseId = req.body.courseId;
-    const emailReceiver = req.body.emailReceiver;
-    const emailSender = req.body.emailSender;
-    const sender = req.body.sender;
-
-    //let testAccount = await nodemailer.createTestAccount();
-
-
-    let transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-            user: process.env.CLASS_SERVICE_GMAIL,
-            pass: process.env.CLASS_SERVICE_PASS
-        }
-    });
-
-    let isAcceptSendMail = false;
-    //let isInviteTeacherError = false;
-    let existingUser = null;
     try {
+
+        //const role = req.body.role;
+        const invitationLink = req.body.invitationLink;
+        const courseId = req.body.courseId;
+        const emailReceiver = req.body.emailReceiver;
+        const emailSender = req.body.emailSender;
+        const sender = req.body.sender;
+
+        //let testAccount = await nodemailer.createTestAccount();
+
+
+        let transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.CLASS_SERVICE_GMAIL,
+                pass: process.env.CLASS_SERVICE_PASS
+            }
+        });
+
+        let isAcceptSendMail = false;
+        //let isInviteTeacherError = false;
+        let existingUser = null;
         existingUser = await UsersService.findOneByEmailV2(emailReceiver);
         if (existingUser !== null) {
             const userId = existingUser.id;
@@ -315,7 +318,7 @@ exports.inviteTeacher = async (req, res) => {
             //console.log(teacher);
             if (teacher !== null) {
                 if (teacher.confirmed) {
-                    res.status(404).send({
+                    return res.status(404).send({
                         msg: 'Teacher has already been in your class'
                     });
                 }
@@ -388,14 +391,14 @@ exports.inviteTeacher = async (req, res) => {
             });
 
             if (info !== null) {
-                res.send({ msg: 'Invitation sent!' });
+                return res.send({ msg: 'Invitation sent!' });
             } else {
-                res.status(404).send({
+                return res.status(404).send({
                     msg: 'Teacher has already been in your class'
                 });
             }
         } catch (err) {
-            res.status(500).send({
+            return res.status(500).send({
                 msg: "Some error occurred while sending invitation."
             });
         }
@@ -404,11 +407,11 @@ exports.inviteTeacher = async (req, res) => {
 
 exports.invitationHandle = async (req, res) => {
     if (!req.body) {
-        res.status(400).send({
+        return res.status(400).send({
             msg: "Content can not be empty!"
         });
     }
-    
+
     const invitationId = req.body.invitationId;
 
     if (invitationId.length === 8) {
@@ -417,7 +420,7 @@ exports.invitationHandle = async (req, res) => {
             const student = await CoursesService.findPendingStudent(course.id, req.body.userId);
             const teacher = await CoursesService.findPendingTeacher(course.id, req.body.userId);
             let isSuccess = null;
-    
+
             if (student !== null && teacher !== null) {
                 if (!teacher.confirmed) {
                     isSuccess = await CoursesService.updateStudentJoin(course.id, student.studentId);
@@ -436,22 +439,22 @@ exports.invitationHandle = async (req, res) => {
             else {
                 isSuccess = await CoursesService.updateStudentJoin(course.id, student.studentId);
             }
-    
+
             if (isSuccess !== null) {
-                res.send({
+                return res.send({
                     courseId: course.id,
                     msg: "You are joined!"
                 });
             } else {
-                res.status(400).send({
+                return res.status(400).send({
                     msg: "Some error occurred while adding student."
                 });
             }
         } catch (err) {
-            res.status(500).send({
+            return res.status(500).send({
                 msg: err.message || "Some error occurred while adding student."
             });
-        }        
+        }
     }
     else if (invitationId.length === 12) {
         try {
@@ -461,7 +464,7 @@ exports.invitationHandle = async (req, res) => {
                 if (user.email === invitationInfo.email) {
                     const teacher = await CoursesService.findPendingTeacher(invitationInfo.courseId, req.body.userId);
                     let isSuccess = null;
-    
+
                     if (teacher) {
                         if (!teacher.confirmed) {
                             let diff = (Date.now() - invitationInfo.teacherInvitationTimeout) / 1000;
@@ -479,38 +482,38 @@ exports.invitationHandle = async (req, res) => {
                             isSuccess = await CoursesService.addTeacher(invitationInfo.courseId, req.body.userId);
                         }
                     }
-    
+
                     if (isSuccess !== null) {
-                        res.send({
+                        return res.send({
                             courseId: invitationInfo.courseId,
                             msg: "You are joined!"
                         });
                     } else {
-                        res.status(400).send({
+                        return res.status(400).send({
                             msg: "Some error occurred while adding teacher."
                         });
                     }
                 }
                 else {
-                    res.status(400).send({
+                    return res.status(400).send({
                         msg: "You are not permit to join with role teacher."
                     });
                 }
             }
             else {
-                res.status(400).send({
+                return res.status(400).send({
                     msg: "Can't find link."
                 });
-            }   
-            
+            }
+
         } catch (err) {
-            res.status(500).send({
+            return res.status(500).send({
                 msg: err.message || "Some error occurred while adding member."
             });
         }
     }
     else {
-        res.status(500).send({
+        return res.status(500).send({
             msg: err.message || "Invalid link."
         });
     }
@@ -518,19 +521,19 @@ exports.invitationHandle = async (req, res) => {
 
 exports.invitationTeacherHandle = async (req, res) => {
     if (!req.body) {
-        res.status(400).send({
+        return res.status(400).send({
             msg: "Content can not be empty!"
         });
     }
 
-    
+
 }
 
 exports.joinByCode = async (req, res) => {
     const token = req.cookies.token;
     const parsedToken = jwtDecode(token);
     if (!req.body) {
-        res.status(400).send({
+        return res.status(400).send({
             msg: "Content can not be empty!"
         });
         return;
@@ -543,7 +546,7 @@ exports.joinByCode = async (req, res) => {
             const student = await CoursesService.findPendingStudent(course.id, parsedToken.user.id);
 
             let isSuccess = null;
-    
+
             if (student !== null) {
                 res.status(409).send({
                     msg: "You have already joined this class!"
@@ -553,7 +556,7 @@ exports.joinByCode = async (req, res) => {
             else {
                 isSuccess = await CoursesService.addStudent(course.id, parsedToken.user.id);
             }
-    
+
             if (isSuccess !== null) {
                 res.status(200).send({
                     courseId: course.id,
@@ -565,13 +568,12 @@ exports.joinByCode = async (req, res) => {
                 msg: err.message || "Some error occurred while adding student."
             });
             return;
-        }        
+        }
     }
     else {
         res.status(404).send({
             msg: "Invalid code."
         });
-        return;
     }
 }
 
@@ -581,7 +583,7 @@ exports.findAllPeople = async (req, res) => {
 
     const role = await Permission.getRole(parsedToken.user.id, req.params.id);
     if (role != 'teacher' && role != 'owner' && role != 'student') {
-        res.status(403).send({
+        return res.status(403).send({
             message: 'Forbbiden'
         });
     }
