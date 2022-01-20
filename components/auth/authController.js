@@ -483,8 +483,9 @@ exports.resetPassword = async (req, res, next) => {
                     msg: "Reset link expired!"
                 });
             } else {
+                let hash = bcrypt.hashSync(newPass, saltRounds);
                 await UsersService.update({
-                    password: newPass,
+                    password: hash,
                     resetPasswordToken: null,
                     resetPasswordTimeout: null,
                 }, user.id);

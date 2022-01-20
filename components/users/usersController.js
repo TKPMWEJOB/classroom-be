@@ -41,7 +41,8 @@ exports.updateNameId = async (req, res) => {
     const user = {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        studentID: req.body.studentID
+        studentID: req.body.studentID,
+        isMapping: req.body.isMapping,
     };
 
     if (!req.body) {

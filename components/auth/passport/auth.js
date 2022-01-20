@@ -40,7 +40,7 @@ module.exports = (app) => {
         } else if (accountUsername === null) {
             account = accountEmail;
         }
-        
+
         //Check password
         //if (password.localeCompare(account.password) !== 0)
         if (!bcrypt.compareSync(password, account.password))
